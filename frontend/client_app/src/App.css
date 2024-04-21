@@ -1,0 +1,401 @@
+body{
+  font-family: "Roboto", sans-serif;
+}
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+
+.Form {
+  margin-left: 5%;
+}
+
+.DataSetup{
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  width: 100vh;
+  justify-content: space-evenly;
+  margin-top: 5%;
+  margin-bottom: 5%;
+}
+
+.Setup{
+  width: 100vh;
+  margin: 4% auto;
+  padding: 1%;
+  border: 1px solid;
+  border-radius: 25px;
+  box-shadow: 5px 10px #888888;
+  
+}
+
+.sourcesBox{
+  display: flex;
+  justify-content: space-between;
+  margin: auto;
+  margin-bottom: 50px;
+  width: 800px;
+  border: 1px solid;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 5px 5px 10px 0px grey;
+  align-items: baseline;
+}
+.sourcesBoxDiv{
+  display: flex;
+  justify-content: space-evenly;
+  width: 500px;
+}
+
+.sourcesBox p{
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.active {
+  background-color: green;
+}
+.wait {
+  background-color: rgb(255, 190, 69);
+}
+
+.active-text {
+  color: white;
+}
+.clearfix {
+  display: flex;
+  text-align: left;
+  margin: 10px;
+}
+
+.half {
+  width: 60%;
+  height: 80vh; /* nastavenie výšky na 100% výšky obrazovky */
+  overflow-y: auto; /* povolenie vertikálneho scrollovania, ak je obsah dlhší ako výška */
+  border: 1px solid;
+  word-break: break-word; /* Zalomí text, aby sa zmestil do šírky kontajnera */
+  white-space: pre-wrap;
+  resize: none;
+  box-sizing: border-box;
+  box-shadow: 5px 5px 10px grey;
+  margin-right: 20px;
+}
+
+.half p {
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: justify;
+}
+
+.half h2 {
+  padding-left: 20px;
+}
+
+.textfield {
+  width: 30%;
+  height: 80vh;
+  overflow-y: auto;
+  border: 1px solid;
+  padding-top: 10px;
+  word-break: break-word;
+  white-space: pre-wrap;
+  resize: none;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box; /* zahrnie padding a border do celkovej veľkosti prvku */
+  box-shadow: 5px 5px 10px grey;
+}
+
+.textfield p {
+  color: black;
+}
+
+
+.textfield textarea {
+  resize: none;
+  flex: auto;
+}
+
+textarea {
+  font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+
+/* Vytvára oddelenie medzi jednotlivými položkami */
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.scraperInfo{
+  width: fit-content;
+  margin: auto;
+}
+.scraperInfo li {
+  text-align: left;
+}
+
+.helpSearchData{
+  display: flex;
+  margin: auto;
+  margin-top: 1%;
+  margin-bottom: 30px;
+  justify-content: space-between;
+  align-items: center;
+  width: 800px;
+  border: 1px solid black;
+  border-radius: 10px;
+  box-shadow: 5px 10px 10px grey;
+  padding: 5px;
+}
+
+.helpSearchBox{
+  margin: auto;
+  color: black;
+  font-size: 16px;
+}
+
+.iframeClass{
+  width: 60%;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: auto;
+  margin-right: 20px;
+  box-shadow: 5px 5px 10px grey;
+ 
+}
+
+.iframeClass iframe {
+  width: 100%;
+  height: 80vh;
+  
+}
+
+.articleInnerContent {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 90%;
+  margin-right: 10px;
+  margin-bottom: 20px;
+  padding-left: 20px;
+  font-size: 14px;
+  color: rgb(153, 153, 153);
+}
+
+.articleInnerContent * {
+  margin: 0px;
+}
+
+.articleImage {
+  display: block;
+  width: 80%;
+  margin-left: 20px;
+ 
+}
+
+.articleLink {
+  text-decoration: none;
+  color: black;
+  transition: 350ms;
+}
+
+.articleLink:hover {
+  transition: 350ms;
+  color: black;
+  text-shadow: 8px 8px 12px rgb(114, 114, 114);
+
+}
+
+.articleLink h1 {
+  padding-left: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 30px;
+  padding-right: 20px;
+  text-align: justify;
+}
+
+.date_content{
+  display: flex;
+  margin: 0px;
+  padding: 0px;
+  color: rgb(114, 114, 114); 
+}
+
+.articleDesc p{
+  margin-top: 10px;
+  margin-bottom: 0px;
+}
+
+.chooseFrom{
+  display: flex;
+  flex-direction: column;
+  width: 10%;
+}
+
+.chooseFrom button{
+  height: 60px;
+  margin: 10px 10px 10px 0px;
+  border-radius: 5px;
+  box-shadow: 5px 5px 5px grey;
+  cursor: pointer;
+  transition: 300ms;
+  font-weight: bold;
+  font-family: "Roboto", sans-serif;
+  font-size: medium;
+}
+
+.active-menu-button{
+  border: 4px solid;
+  color: white;
+  text-shadow: 1px 1px black;
+  border-top-color: darkgreen;
+  border-left-color: darkgreen;
+  border-bottom-color: rgb(0, 81, 0);
+  border-right-color: rgb(0, 81, 0);
+  background-color: green;
+  
+}
+.nonactive-menu-button{
+  color: black;
+  text-shadow: 1px 1px rgb(195, 220, 232);
+  box-shadow: 3px 3px 3px grey;
+  border: 3px solid; 
+  border-top-color: rgb(100, 191, 233);
+  border-left-color: rgb(100, 191, 233);
+  border-bottom-color: rgb(49, 173, 231);
+  border-right-color: rgb(49, 173, 231);
+  background-color: #89CFF0;    
+}
+
+.chooseFrom button:hover{
+  transform: translate(0px, -10%);
+  transition: 300ms;
+}
+
+.templates{
+  display: flex;
+}
+
+.templateButtons{
+  display: flex;
+  width: 30%;
+}
+
+.templateButtons button{
+  cursor: pointer;
+  margin-left: 12px;
+  margin-bottom: 10px;
+  width: fit-content;
+  padding: 5px;
+  border-radius: 10px;
+  font-size: medium;
+  font-family: "Roboto", sans-serif;
+  transition: 300ms;
+  
+}
+
+.templateButtons button:hover{
+  transform: translate(0px, -10%);
+  transition: 300ms;
+}
+
+.active-button{
+  color: white;
+  text-shadow: 1px 1px black;
+  box-shadow: 3px 3px 3px rgb(0, 0, 0);
+  border: 3px solid; 
+  border-top-color: darkgreen;
+  border-left-color: darkgreen;
+  border-bottom-color: rgb(0, 81, 0);
+  border-right-color: rgb(0, 81, 0);
+  background-color: green;
+}
+.nonactive-button{
+  color: black;
+  text-shadow: 1px 1px rgb(195, 220, 232);
+  box-shadow: 3px 3px 3px grey;
+  border: 3px solid; 
+  border-top-color: rgb(100, 191, 233);
+  border-left-color: rgb(100, 191, 233);
+  border-bottom-color: rgb(49, 173, 231);
+  border-right-color: rgb(49, 173, 231);
+  background-color: #89CFF0;    
+}
+
+.nonactive-button:hover{
+  box-shadow: 6px 6px 10px darkgrey;
+}
+
+.spanLoader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60%;
+  height: 80vh; /* nastavenie výšky na 100% výšky obrazovky */
+  box-sizing: border-box;
+  box-shadow: 5px 5px 10px grey;
+  margin-right: 20px;
+}
+
+.loader {
+  margin: auto;
+  width: 48px;
+  height: 48px;
+  border: 5px solid #FFF;
+  border-bottom-color: #89CFF0;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+  }
+
+  @keyframes rotation {
+  0% {
+      transform: rotate(0deg);
+  }
+  100% {
+      transform: rotate(360deg);
+  }
+  } 
+
+@media only screen and (max-width: 900px) {
+  .templateButtons {
+    flex-direction: column;
+  }
+  .chooseFrom{
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,60 @@
+.header{
+    background-color: #89CFF0;
+    width: 100%;
+    height: 60px;
+    box-shadow: 10px 0px 10px gray;
+    margin: auto;
+  
+}
+
+.menu{
+    display: flex;
+    justify-content: space-between;
+}
+
+.homeButtonIcon{
+    display: flex;
+    width: fit-content;
+    height: 60px;
+    align-items: center;
+    vertical-align: middle;
+    margin-left: 1%;
+}
+
+.homeIcon{
+    width: 30px;
+    height: fit-content;
+    transition: 300ms;
+   
+    
+}
+.homeIcon:hover{
+    width: 35px;
+    transition: 300ms;  
+    
+}
+
+.homeButtonText{
+    display: flex;
+    align-items: center;
+    margin-right: 2%;
+    width: 350px;
+    justify-content: space-between;
+}
+
+.homeButtonTextElements{
+    width: fit-content;
+    font-family: "Roboto", sans-serif;
+    font-weight: bold;
+    font-size: 18px;
+    transition: 300ms;
+    
+}
+.homeButtonTextElements:hover{
+    font-size: 18px;
+    text-shadow: 10px 10px 10px  #89CFF0;
+    transition: 300ms;
+    transform: translate(0px, -10%);  
+    
+    
+}

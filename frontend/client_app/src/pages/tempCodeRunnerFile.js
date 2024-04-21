@@ -1,0 +1,3 @@
+useEffect (() => {
+    handlaConfigEmptyData();
+  }, [mandatoryData, additionalData])

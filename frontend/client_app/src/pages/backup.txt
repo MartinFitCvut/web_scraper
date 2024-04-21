@@ -1,0 +1,1003 @@
+import React, { useState, useEffect, useRef } from "react";
+import { useParams } from 'react-router-dom';
+import Switch from '@mui/material/Switch';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+//import FormLabel from '@mui/material/FormLabel';
+import InputAdornment from '@mui/material/InputAdornment';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import { format } from 'date-fns';
+
+
+
+function SetupPage() {
+  const { name } = useParams();
+  const [data, setData] = useState(null);
+  const [response, setResponce] = useState('');
+  const [frequency, setFrequency] = useState(0);
+  const [activeNow, setActiveNow] = useState(null);
+  const [checked, setChecked] = useState({
+    onlyRSS: false,
+    onlySemantics: false,
+    rssAndSemantics: false
+    });
+  const [address, setAddress] = useState('');
+  //const [setupdata, setSetupData] = useState('');
+  const textareaRef = useRef(null);
+  const [additionalData, setAdditionalData] = useState('');
+  const [mandatoryData, setMandatoryData] = useState({
+    title: {source: ''},
+    link: {source: ''},
+    description: {source: ''}
+  });
+  const [helpSearch, setHelpSearch] = useState('');
+  const [helpFindData, setHelpFindData] = useState('');
+  const [showDataAsArticle, setShowDataAsArticle] = useState(true);
+  const [combinedData, setCombinedData] = useState('');
+  let timeout;
+ 
+
+  const handleHelpSearchData = (event) => {
+    const value = event.target.value;
+    clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        setHelpSearch(value);
+        //console.log(helpSearch);
+      }, 1000);
+      
+  }
+
+
+  const handleMandatoryArea = (event, name) => {
+    
+      const value = event.target.value.trim();
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        setMandatoryData(prevState => ({
+          ...prevState,
+          [name]:{ source: value}
+        }));
+        console.log(value);
+        console.log(mandatoryData);
+        setChecked({
+          onlyRSS: false,
+          onlySemantics: false,
+          rssAndSemantics: false
+        });
+        setActiveNow('clientConfig');
+        //setActiveNow("");
+      }, 500);
+    //console.log(mandatoryData);
+    //const mandatoryDataToJSON = JSON.stringify(mandatoryData, null, 2);
+    //console.log(mandatoryDataToJSON);
+  }
+ 
+
+  const handleTextArea = (event) => {
+    console.log("Additional data");
+    const value = event.target.value.trim(); // Trim whitespace from start and end
+    const regex = /(\w+):\s*([^\s;]+)/g; // Adjusted regex to exclude only whitespace values
+    let match;
+    let jsonData = {};
+
+    // Check if the input is not just empty or whitespace before proceeding
+    if (value !== '') {
+        while ((match = regex.exec(value)) !== null) {
+            // Ensure matched value is not just whitespace or newline
+            if (match[2].trim() !== '') {
+                const name = match[1];
+                const val = match[2].trim(); // Trim value to remove leading/trailing whitespace
+                jsonData[name] = { source: val };
+            }
+        }
+    }
+
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+        // Use JSON.stringify only if jsonData is not empty
+        const additionalDataValue = Object.keys(jsonData).length === 0 ? '' : JSON.stringify(jsonData, null, 2);
+
+        setAdditionalData(additionalDataValue);
+
+        setChecked({
+            onlyRSS: false,
+            onlySemantics: false,
+            rssAndSemantics: false
+        });
+        setActiveNow('clientConfig');
+    }, 1000);
+};
+
+
+  const handlaConfigEmptyData = () => {  
+    if(mandatoryData.title.source === '' && mandatoryData.link.source === '' && mandatoryData.description.source === '' && additionalData === ''){
+      setActiveNow('noData');
+    } 
+  }
+
+  useEffect (() => {
+    handlaConfigEmptyData();
+  }, [mandatoryData, additionalData])
+
+
+  /*
+  const handleTextArea = (event) => {
+    const value = event.target.value;
+    const regex = /(\w+):\s*([^,]+)/g; 
+    let match;
+    if((match = regex.exec(value)) !== null){
+      setAdditionalData(value);
+      console.log(additionalData);
+    }
+  }
+  */
+  
+  const handleTextAsArticle = (value) =>{
+    setShowDataAsArticle(value);
+  }
+
+  const handleChange = (key) => {
+      
+      setChecked(prevState => ({
+        onlyRSS: key === "onlyRSS" ? !prevState.onlyRSS : false,
+        onlySemantics: key === "onlySemantics" ? !prevState.onlySemantics : false,
+        rssAndSemantics: key === "rssAndSemantics" ? !prevState.rssAndSemantics : false
+    }));
+    setActiveNow(prevState => {
+      switch (key) {
+          case "onlyRSS":
+              return prevState === "onlyRSS" ? "noData" : "onlyRSS";
+          case "onlySemantics":
+              return prevState === "onlySemantics" ? "noData" : "onlySemantics";
+          case "rssAndSemantics":
+              return prevState === "rssAndSemantics" ? "noData" : "rssAndSemantics";
+          default:
+              return "";
+      }
+  });
+  };
+
+  
+  useEffect(() => {
+    //console.log(combinedData);
+    sendSetupDataToServer();
+
+  }, [combinedData]);
+
+  useEffect(() => {
+    // Assuming additionalData is a JSON string or similar,
+    // and you want to combine it with mandatoryData into a single JSON object
+    
+    const combined = JSON.stringify(mandatoryData) + ' ' + JSON.stringify(additionalData) + ' ' + activeNow;
+    setCombinedData(combined); // Convert to JSON string for consistency
+    console.log(combinedData);
+  }, [additionalData, mandatoryData, activeNow]); // This useEffect depends on additionalData and mandatoryData
+
+  // Your component logic and return statement...
+
+
+  useEffect(() => {
+    sendHelpDataToServer();
+  }, [helpSearch]);
+
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/frame/${name}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        if (response.ok) {
+          const data = await response.text();
+          setAddress(data);
+          console.log(data);
+          
+        } else {
+          console.error('Nepodarilo sa získať dáta');
+        }
+      } catch (error) {
+        console.error('Chyba:', error);
+      }
+      
+    };
+    fetchData();
+  }, []);
+
+  
+
+
+  const handleStart = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/setActive/${name}/setup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ start: true, frequency: frequency, name: name , maindata: mandatoryData, additionaldata: additionalData, activeNow: activeNow})
+      });
+      if (response.ok) {
+        const jData = await response.json();
+        setResponce(jData);
+      } else {
+        console.error('Nepodarilo sa spustiť proces');
+      }
+    } catch (error) {
+      console.error('Chyba:', error);
+    }
+  };
+
+  const handleStop = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/setActive/${name}/setup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify({ start: false, name: name })
+      });
+      if (response.ok) {
+        const jData = await response.json();
+        setResponce(jData);
+      } else {
+        console.error('Nepodarilo sa zastaviť proces');
+      }
+    } catch (error) {
+      console.error('Chyba:', error);
+    }
+  };
+
+  function handleKeyDown(e) {
+    if (e.key === "Tab") {
+      e.preventDefault();
+      const { current } = textareaRef;
+      const start = current.selectionStart;
+      const end = current.selectionEnd;
+      const value = current.value;
+
+      // Insert tabulation in the textarea at the current cursor position
+      const newValue = value.substring(0, start) + "\t" + value.substring(end);
+      current.value = newValue;
+
+      // Move the cursor after the inserted tabulation
+      current.selectionStart = current.selectionEnd = start + 1;
+    }
+  }
+
+  const sendHelpDataToServer = async() => {
+    try{
+      const response = await fetch(`http://localhost:5000/api/setActive/SetUp/${name}/helper`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify({helpData: helpSearch, name: name})
+    });
+    if (response.ok) {
+      const jsonData = await response.json();
+      setHelpFindData(jsonData);
+      
+    } else {
+      console.error('Nepodarilo sa poslať dáta');
+    }
+    }
+    catch (error) {
+      console.error('Chyba:', error);
+    }
+};
+  
+  const sendSetupDataToServer = async() => {
+      try{
+        console.log(mandatoryData);
+        const response = await fetch(`http://localhost:5000/api/setActive/SetUp/${name}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify({maindata: mandatoryData, additionaldata: additionalData, name: name, activeNow: activeNow})
+      });
+      if (response.ok) {
+        const jsonData = await response.json();
+        console.log(jsonData);
+        if(jsonData !== false){
+          jsonData.pubdate = format(new Date(jsonData.pubdate), 'dd.MM.yyyy HH:mm:ss');
+        }
+        /*
+        const isOnlySpecificKeysDefined = Object.keys(jsonData).every(key => {
+          return key === 'pubdate' || key === 'guid' || key === 'sourceID';
+        });
+      
+        if (isOnlySpecificKeysDefined) {
+          // Perform the desired action when only 'pubdate', 'guid', and 'sourceID' are defined
+          console.log('Only pubdate, guid, and sourceID have values and no other keys are defined.');
+          
+          setActiveNow('noData');
+          // Perform your action here ...
+        }
+        */
+        setData(jsonData);
+        
+        //console.log("Data" + data);
+        
+      } else {
+        console.error('Nepodarilo sa zastaviť proces');
+      }
+      }
+      catch (error) {
+        console.error('Chyba:', error);
+      }
+  };
+  /*
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        console.log(checked);
+        console.log(activeNow);
+        const response = await fetch(`http://localhost:5000/api/setActive/${name}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name: name})
+        });
+        if (response.ok) {
+          const jsonData = await response.json();
+          console.log(jsonData);
+          const active = jsonData.activeConfiguration
+          if(active === 'onlyRSS' || active === 'onlySemantics' || active === 'rssAndSemantics'){
+            setChecked(prevState => ({
+              ...prevState,
+              [active]: true
+            }));
+            setActiveNow(active);
+            
+          }
+        } else {
+          console.error('Nepodarilo sa získať dáta');
+        }
+      } catch (error) {
+        console.error('Chyba:', error);
+      }
+      
+    };
+    fetchData();
+  }, []);
+*/
+  return (
+    <div className="App">
+      <h1>{name}</h1>
+      <p>Pokiaľ nie je bližšie špecifikované ako sa dáta majú ukladať, teda ľavá strana je prázdna, potom sa zobrazí náhľad článku na základe predpripravených RSS a Semantických dát.</p>
+      
+      <h4>Web scraper obsahuje 5 povinných prvkov.</h4>
+      <ul className="scraperInfo">
+        <li><b>Title:</b> možné konfigurovať</li>
+        <li><b>Link:</b> možné konfigurovať</li>
+        <li><b>Description:</b> možné konfigurovať</li>
+        <li><b>PubDate:</b> fixne dané - nedá sa zmeniť ani odstrániť</li>
+        <li><b>Guid:</b> fixne dané - nedá sa zmeniť ani odstrániť</li>
+      </ul>
+      <p>Ak potrebujete poradiť s napísaním selektoru pre určité časti vložte text alebo príslušnú triedu do vyhľadávania</p>
+      <div className="helpSearchData">
+      <TextField label="Vyhľadaj" sx={{ m: 1, width: '350px' }}
+        onChange={handleHelpSearchData}
+          InputProps={{
+            startAdornment: <InputAdornment position="start">search: </InputAdornment>,
+          }}
+        />
+      <p className="helpSearchBox">{helpFindData}</p>
+      </div>
+      <p>Prednastavené vyhľadávanie pomocou RSS, Sémantických dát (OpenGraph), alebo ich kombinácia.</p>
+      <FormControl component="fieldset">
+        <FormGroup aria-label="position" row>
+          <FormControlLabel
+            value="RSS"
+            control={<Switch color="primary" checked={checked.onlyRSS} onChange={() => handleChange("onlyRSS")}/>}
+            label="RSS"
+            labelPlacement="top"
+          />
+          <FormControlLabel
+            value="Semantics"
+            control={<Switch color="primary" checked={checked.onlySemantics} onChange={() => handleChange("onlySemantics")}/>}
+            label="Semantics"
+            labelPlacement="top"
+          />
+          <FormControlLabel
+            value="RSS + Semantics"
+            control={<Switch color="primary" checked={checked.rssAndSemantics} onChange={() => handleChange("rssAndSemantics")}/>}
+            label="SemanticsRss"
+            labelPlacement="top"
+          />
+        </FormGroup>
+      </FormControl>
+      
+      <h3>Scraper - nastavenie</h3>
+      <Button variant="contained" onClick={() => handleTextAsArticle(false)}>Raw Data</Button>
+      <Button variant="contained" onClick={() => handleTextAsArticle(true)}>Artile like</Button>
+      
+      <div className="clearfix">
+        <div className="textfield">
+        <TextField label="Povinné" sx={{ m: 1, width: 'auto' }} onChange={(event) => handleMandatoryArea(event, 'title')}
+          InputProps={{
+            startAdornment: <InputAdornment position="start">title: </InputAdornment>,
+          }}
+        />
+        <TextField label="Povinné" sx={{ m: 1, width: 'auto' }} onChange={(event) => handleMandatoryArea(event, 'link')}
+          InputProps={{
+            startAdornment: <InputAdornment position="start">link: </InputAdornment>,
+          }}
+        />
+        <TextField label="Povinné" sx={{ m: 1, width: 'auto' }} onChange={(event) => handleMandatoryArea(event, 'description')}
+          InputProps={{
+            startAdornment: <InputAdornment position="start">description: </InputAdornment>,
+          }}
+        />
+        
+        <textarea ref={textareaRef} onKeyDown={handleKeyDown} onChange={handleTextArea} />
+        
+        </div>
+       
+        {data ? (
+          <div className="half">
+            { showDataAsArticle ? (
+            <article>
+              <a href={data.link} target="_blank" className="articleLink"><h1>{data.title}</h1></a>
+              <div className="articleInnerContent">
+                  <h3>{data.sourceID}</h3>
+                  <p>{data.site_name}</p>
+                  <p>Kategória: {data.category}</p>
+                  <p>Typ: {data.type}</p>
+              </div>
+              <img src={data.image} alt={data['image:alt']} className="articleImage"/>
+              <div className="articleDesc">
+                <span className="date_content">
+                  <p>{data.pubdate}</p>
+                  <p>guid: {data.guid}</p>
+                </span>
+                <p>{data.description}</p>
+              </div>
+              <h2>Other content</h2>
+              {Object.entries(data).map(([key, value]) => {
+                if (key !== 'title' && key !== 'link' && key !== 'image' && key !== 'description' && key !== 'sourceID' && key !== 'site_name' && key !== 'type' && key !== 'category' && key!== 'image:height' && key !== 'image:width' && key!== 'image:alt' && key!== 'pubdate' && key!== 'guid') {
+                  if(key === 'content'){
+                    const htmlContent = value.replace(/<[^>]+>/g, '').trim();
+                    return (
+                      <div key={key}>
+                        <p><b>{key}</b>: {htmlContent}</p>
+                      </div>
+                    );}
+                    else{
+                      return(
+                        <div key={key}>
+                          <p><b>{key}</b>: {typeof value === 'string' ? value : JSON.stringify(value)}</p>
+                        </div>
+                      );
+                    }
+                }
+                return null;
+              })}
+            </article> 
+            ) : (
+              <div>
+              {Object.entries(data).map(([key, value]) => {
+                if(key === 'content'){
+                  const htmlContent = value.replace(/<[^>]+>/g, '').trim();
+                  return (
+                    <div key={key}>
+                      <p><b>{key}</b>: {htmlContent}</p>
+                    </div>
+                  );}
+
+                  else{
+                    return(
+                      <div key={key}>
+                        <p><b>{key}</b>: {typeof value === 'string' ? value : JSON.stringify(value)}</p>
+                      </div>
+                    );
+                  }
+              })}
+              </div>
+            ) 
+            }
+          </div>
+        ) : <div className="half"><h2 style={{"color": "red"}}> No data specified</h2></div>}        
+      </div>
+        <h3>Spustenie Scraper</h3>
+        <input type="number" value={frequency} onChange={(e) => setFrequency(e.target.value)} />
+        <button onClick={handleStart}>Start</button>
+        <button onClick={handleStop}>Stop</button>
+        <p>{response}</p> 
+        {/**
+        <div className="iframeClass">
+          <iframe src={address} title="W3Schools Free Online Web Tutorials">
+          </iframe>
+          <a href={address} target="_blank" rel="noopener noreferrer">Otvoriť v novom okne </a>
+          </div> */}
+    </div>
+  );
+}
+
+export default SetupPage;
+
+
+/*
+  useEffect(() => {
+    const mergedData = {
+      ...setupdata,
+      ...JSON.parse(additionalData || '{}') // Zabezpečuje, že sa nepokúšame parsovať prázdny reťazec
+    };
+    setSetupData(JSON.stringify(mergedData));
+  }, [setupdata, additionalData]);
+*/
+/*
+  const handleMandatoryArea = (event, name) => {
+    const value = event.target.value;
+    const regex = /(\w+):\s*([^,]+)/g; 
+    const newData = `${name}: ${value}`;
+    let match;
+    if ((match = regex.exec(newData)) !== null) {
+      setSetupData(newData);
+    }
+  }
+*/
+
+ //Handle na získanie dát z <TextField> a následné ich spracovanie a zapísanie do setupData
+  /*
+  const handleMandatoryArea = (event, name) => {
+    const value = event.target.value;
+    setMandatoryData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  
+    const setupDataObject = { ...mandatoryData, [name]: value };
+    const formattedString = Object.keys(setupDataObject)
+      .map(key => `${key}: ${setupDataObject[key] || ''},`)
+      .join('\n');
+  
+    setSetupData(formattedString);
+  };
+  */
+
+/*
+{data ? (
+          <div className="half">
+            {Object.entries(data).map(([key, value], index) => (
+              <span key={index}>
+                 {
+                  key === 'link' ? <a href={value} target="_blank"><h1>{data['title']}</h1></a> : 
+                  
+                  key === 'status' ? <h2>{value}</h2> :
+                  key === 'type' ? <p>{value}</p> :
+                  key === 'site_name' ? <p>{value}</p> :
+                  key === 'pubdate' ? <p>{value}</p> :
+                  key === 'guid' ? <p>{value}</p> :
+                  
+                  key === 'description' ? <p>{value}</p> : 
+                  key === 'image' ? <img src={value} /> : null
+              }
+              </span>
+            ))}
+          </div>
+        ) : (
+          <div className="half">
+            <p>Loading data ...</p>
+          </div>
+        )}
+*/  
+
+import React, { useState, useEffect, useRef } from "react";
+import "../filter.css";
+import { useLocation } from 'react-router-dom';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+//import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import Button from '@mui/material/Button';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { renderTimeViewClock } from '@mui/x-date-pickers/timeViewRenderers';
+import TextField from '@mui/material/TextField';
+import { format } from 'date-fns';
+import dayjs from 'dayjs';
+import { json, useAsyncError } from "react-router";
+import { Link } from 'react-router-dom';
+import DownloadButton from "../components/download";
+import download from '../images/download.png';
+
+
+function ClientSearch(){
+
+    const [dateFrom, setDateFrom] = useState(null);
+    const [dateTo, setDateTo] = useState(null);
+
+    const [timeFrom, setTimeFrom] = useState(null);
+    const [timeTo, setTimeto] = useState(null);
+
+    const [sourceid, setSourceID] = useState(null);
+
+    const [setupGuid, setSetupGuid] = useState(null);
+
+
+    const [articles, setArticles] = useState(null);
+
+    const [startIndex, setStartIndex] = useState(() => {
+      const storedIndex = localStorage.getItem('startIndex');
+      return storedIndex !== null ? parseInt(storedIndex) : 0;
+    });
+    const [sortDirection, setSortDirection] = useState(1);
+    const articlesPerPage = 10;
+
+    const [scrollPosition, setScrollPosition] = useState(0);
+
+    let location = useLocation();
+    console.log(location.state);
+    
+   
+    const handleSourceIDChange = (event) => {
+      if(event.target.value.trim() !== ''){
+        setSourceID(event.target.value);
+      }
+      else{
+        setSourceID(null);
+      }
+      
+    };
+
+    const handleGuidChange = (event) => {
+        if(event.target.value.trim() !== ''){
+          setSetupGuid(event.target.value);
+        }
+        else{
+          setSetupGuid(null)
+        }
+    
+    };
+    
+    const handleDateFrom = (event) => {
+      //console.log(new Date(event));
+      if(event != null){
+        setDateFrom(new Date(event));
+      }
+      else{
+        setDateFrom(null);
+      }
+    }
+
+    const handleDateTo = (event) => {
+      if(event !== null){
+        setDateTo(new Date(event));
+      }
+      else{
+        setDateTo(null);
+      }
+    }
+    
+    const scrollToTop = () => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    };
+
+    const handleNextClick = () => {
+      scrollToTop();  
+      setStartIndex(startIndex + articlesPerPage);
+      localStorage.setItem('startIndex', startIndex + articlesPerPage);
+    };
+  
+    const handlePrevClick = () => {
+      scrollToTop();  
+      setStartIndex(Math.max(startIndex - articlesPerPage, 0));
+      localStorage.setItem('startIndex', Math.max(startIndex - articlesPerPage, 0));
+    };
+
+    
+
+/*
+    const scrollToObject = () => {
+      const storedScrollPosition = localStorage.getItem('scrollPosition');  
+        console.log(parseInt(storedScrollPosition));
+        window.scrollTo({
+          top: storedScrollPosition,
+          behavior: "smooth"
+        })
+    }
+*/
+    /*
+    useEffect(() => {
+      // Save scroll position to local storage
+      localStorage.setItem('scrollPosition', scrollPosition);
+    }, [scrollPosition]);*/
+    
+    const handleScroll = () => {
+      localStorage.setItem('scrollPosition', window.scrollY);
+    }
+
+    useEffect(() => {
+        if(localStorage.getItem('articles') !== null){
+          setArticles(JSON.parse(localStorage.getItem('articles'))); 
+        }
+        else{
+          handleSearch();
+        } 
+        console.log(localStorage.getItem('scrollPosition'));
+        console.log(articles)
+        if(localStorage.getItem('scrollPosition') !== null){
+          console.log(localStorage.getItem('scrollPosition'));
+          setScrollPosition(parseInt(localStorage.getItem('scrollPosition')));
+        }
+    }, []);
+
+    useEffect(() => {
+      window.scrollTo({top: scrollPosition});
+    }, [scrollPosition]);
+
+    
+    /*
+    if(localStorage.getItem('articles') !== null){
+      setArticles(JSON.parse(localStorage.getItem('articles')));
+    }*/
+   
+    
+    /*
+    useEffect(() => {
+      const storedScrollPosition = localStorage.getItem('scrollPosition');
+      console.log(parseInt(storedScrollPosition));
+      window.scrollTo({top: parseInt(storedScrollPosition)});
+    }, [articles]);*/
+
+    const handleSearch = async() => {
+       try{
+            //console.log(dateFrom, dateTo);
+            console.log('handleSearch');
+            const response = await fetch(`http://localhost:5000/search`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify({datefrom: dateFrom, dateto: dateTo, timefrom: timeFrom, timeto: timeTo, sourceid: sourceid, setupGuid: setupGuid})
+            });
+            if (response.ok) {
+                const data = await response.json();
+                //localStorage.removeItem('articles');
+                //localStorage.setItem('articles', JSON.stringify(data));
+                setArticles(data);
+                localStorage.setItem('articles', JSON.stringify(data));
+                //console.log(data);
+            } else {
+                console.error('Nepodarilo sa poslať dáta');
+            }
+       }
+       catch(error){
+        console.log(error);
+       }
+    };
+
+    const handleSort = (direction) => {
+        if(articles){
+          const sortedArticles = [...articles].sort((a, b) => {
+              // Compare the pubdate of articles based on the sort direction
+              return direction === 1 ? new Date(a.pubdate) - new Date(b.pubdate) : new Date(b.pubdate) - new Date(a.pubdate);
+          });
+          setArticles(sortedArticles); // Update the state with sorted articles
+          localStorage.setItem('articles', JSON.stringify(sortedArticles));
+          setSortDirection(direction); // Toggle sort direction
+        }
+      };
+    /*
+    useEffect(() => {
+        const handleScroll = () => {
+          const scrollY = window.scrollY;
+          console.log('Scroll position:', scrollY);
+          localStorage.setItem('scrollPosition', window.scrollY);
+          // You can store the scrollY position in state or perform other actions here
+        };
+    
+        window.addEventListener('scroll', handleScroll);
+    
+        return () => {
+          window.removeEventListener('scroll', handleScroll);
+        };
+      }, []);
+      */
+    const handleClick = () => {
+      // Navigate back to the homepage
+      console.log('Bye');
+      window.location.href = '/';
+    };
+
+    return(
+        <div>
+            <h1> Client Search </h1>
+            
+            <nav className="sort_and_volume">
+             
+              <button onClick={() => handleSort(-1)}>Sort Newest</button>
+              <button onClick={() => handleSort(1)}>Sort Oldest</button>
+              {articles !== null ? (<p>Num of results: {articles.length}</p>) : (<p>Num of results: 0</p>)}
+              <DownloadButton data={articles} format="json" filename="articles_JSON" />
+              <DownloadButton data={articles} format="csv" filename="articles_CSV"/>
+            </nav>
+            <div className="filter_place">
+                <div className="filter_bar">
+                    <span className="datePicker">
+                        <p>Dátum od - do</p>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DemoContainer components={['DatePicker']} >
+                                <DatePicker 
+                                label="Date from" 
+                                onChange={handleDateFrom}
+                                />
+                            </DemoContainer>
+                        </LocalizationProvider>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DemoContainer components={['DatePicker']} >
+                                <DatePicker
+                                label="Date to"
+                                onChange={handleDateTo}
+                                />
+                            </DemoContainer>
+                        </LocalizationProvider>
+                    </span>
+
+                    <span className="datePicker">
+                        <p>Presný čas od - do</p>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DemoContainer components={['TimePicker']}>
+                            {dateFrom !== null ? (
+                              <TimePicker
+                                  label="Time from"
+                                  viewRenderers={{
+                                      hours: renderTimeViewClock,
+                                      minutes: renderTimeViewClock,
+                                      seconds: renderTimeViewClock,
+                                  }}
+                                  value={timeFrom}
+                                  onChange={(newValue) => setTimeFrom(newValue)}/>
+                                ) : (
+                                <div style={{display: 'flex',  alignItems: 'center'}}>  
+                                <TimePicker
+                                label="Please pick a Date From"
+                                disabled sx={{backgroundColor: 'white'}}/>
+                                <p style={{paddingLeft: '5px', fontWeight: 'bold', color: 'red', fontSize: '35px', margin: '0px'}}>!</p>
+                                </div>
+                                )}
+                            </DemoContainer>
+                        </LocalizationProvider>
+
+                        
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DemoContainer components={['TimePicker']}>
+                            {dateTo !== null ? (
+                              <TimePicker
+                                  label="Time to"
+                                  viewRenderers={{
+                                      hours: renderTimeViewClock,
+                                      minutes: renderTimeViewClock,
+                                      seconds: renderTimeViewClock,
+                                  }}
+                                  value={timeTo}
+                                  onChange={(newValue) => setTimeto(newValue)}/>
+                                ) : (
+                                <div style={{display: 'flex',  alignItems: 'center'}}>  
+                                <TimePicker
+                                label="Please pick a Date To"
+                                disabled sx={{backgroundColor: 'white'}}/>
+                                <p style={{paddingLeft: '5px', color: 'red', fontWeight: 'bold', fontSize: '35px', margin: '0px'}}>!</p>
+                                </div>
+                                )}
+                            </DemoContainer>
+                        </LocalizationProvider>
+                    </span>
+                    <span className="datePicker">
+                    <p>SourceID</p>
+                      <TextField label="sourceID" variant="outlined"  onChange={handleSourceIDChange}/>
+                    </span>
+                    <span className="datePicker">
+                      <p>Guid</p>
+                      <TextField label="guid" variant="outlined" onChange={handleGuidChange}/>
+                    </span>
+                    <p>title ?</p>
+                    <p>Content ?</p>
+                    <Button variant="contained" onClick={handleSearch}>Search</Button>
+                </div>
+                <article>
+                {articles ? (
+                    <div>
+                    {articles.slice(startIndex, startIndex + articlesPerPage).map((article, index) => (
+                      <div key={index}>
+                        {/** 
+                        {Object.entries(article).map(([key, value]) => {
+                        
+                          if (key === 'content') {
+                            const htmlContent = value.replace(/<[^>]+>/g, '').trim();
+                            return (
+                              <div key={key}>
+                                <p><b>{key}</b>: {htmlContent}</p>
+                              </div>
+                            );
+                          } else if (key === 'jsonData') {
+                            return Object.entries(value).map(([jsonKey, jsonValue]) => (
+                              <div key={jsonKey}>
+                                {typeof jsonValue === 'string' ? (
+                                  <p><b>{jsonKey}</b>: {jsonValue}</p>
+                                ) : (
+                                  <p><b>{jsonKey}</b>: {JSON.stringify(jsonValue)}</p>
+                                )}
+                              </div>
+                            ));
+                          } else {
+                            return (
+                              <div key={key}>
+                                <p><b>{key}</b>: {typeof value === 'string' ? value : JSON.stringify(value)}</p>
+                              </div>
+                            );
+                          }
+                        */}  
+                        <article className="searchArticlePlace">
+                          <h3 className="articleSourceId">{article.sourceID}</h3>
+                       
+                          <div className="articleLinkAndImage">
+                      
+                        
+                            <div className="searchArticleImage">
+                              <img src={article.image} alt={article['image:alt']}/>
+                            </div>
+                            <div style={{position: 'sticky'}}>
+                              <span>
+                                <h1 className="searchArticleLink">{article.title}</h1>
+                                <span className="searchArticleDateGuid">
+                                  <p>{article.pubdate}</p>
+                                  <p>guid: {article.guid}</p>
+                                </span>
+                                <p>{article.description}</p>
+
+                                    <button className="moreButton"> Viac </button>
+                                    <Link to={article.link} target="_blank" style={{width: '100px', marginRight: '20px'}}>
+                                      <button className="moreButton"> Odkaz </button>
+                                    </Link>
+                                    <Link to={`/versions`} state={article.guid} style={{width: '100px', marginRight: '20px'}}> 
+                                      <button className="moreButton" onClick={handleScroll}> Versions </button>
+                                    </Link>
+                                    <div className="dropdown">
+                                      <img src={download} className="dropbtn"/>  
+                                      <div className="dropdown-content">
+                                        <DownloadButton data={article} format="json" filename={'article_JSON_' + article.guid} />
+                                        <DownloadButton data={[article]} format="csv" filename={'article_CSV_' + article.guid}/>
+                                      </div>
+                                  </div>
+                                  
+                                  
+                                
+                              </span> 
+
+                            </div>
+                    
+                          </div>
+                          
+                        </article> 
+                        {/*
+                        })} */}
+                        
+                      </div>
+                        ))}
+                      <div>
+                        <button onClick={handlePrevClick} disabled={startIndex === 0}>Previous</button>
+                        <button onClick={handleNextClick} disabled={startIndex + articlesPerPage >= articles.length}>Next</button>
+                    </div>
+                    </div>
+                    ):(null)
+                    } 
+                    </article>
+            </div>
+        </div>
+    );
+}
+
+export default ClientSearch;
+
+/**<a href={article.link} target="_blank" className="searchArticleLink"> */
