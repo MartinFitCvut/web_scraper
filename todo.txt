@@ -1,0 +1,31 @@
+✔ Nastavovacie okno pre zdroje
+✔ Nastavenie frekvencie (setTimeout / CRUD)
+✔ Štart / Stop pre daný zdroj
+✔ +- Nastavenie 403 pre zdroj, nedovolí nastaviť nič iné iba RSS údaje - working
+✔ Vyriešiť opakujúce sa zdroje v SOURCEDATA
+✔ Pridávanie zdrojov
+✔ Kontrola či sa daný zdroj alebo meno už v kóde nenachádza
+✔ Doplniť možnosť voľby pre clienta "iba RSS", "iba Semantické", "Dokopy" 
+✔ Definovať fixnú štrukúru, aby sme mali pevne danú štruktúru na začiatok do ktorej sa to bude ukladať. 
+✔ Namapovať jednotlivé "keys" z RSS a OG na túto štruktúru  
+✔ Pridať na pevno základné kľúče šablóny do poľa pre užívateľa, teda nebude ich môcť zmazať iba doplniť informácie
+✔ Definovať pekne danú štruktúru, teda štruktúru ktorá musí byť vždy dodržaná pri scrapingu. Teda vytvoriť šablónu ktorá bude obsahovať určité prvky ktoré musia byť zakaždým vyplnené
+✔ Prerobiť zobrazovanie článkov, aby podoba bola viac podobná samotnému článku a nie JSON konfigurácií
+✔ Definovať a ukázať dáta z RSS a Semantiky
+✔ upraviť scraper tak aby bolo jasné že scraper beží a ako je nastavený aj pri bližšom nastavení. 
+
+x upraviť definovanie RSS a Semantics informácií aby si užívateľ vedel cez . definovať zdroj  
+* Fixnúť "šablónu" pre RSS/OG  dáta
+* Vyriešiť 403 error aby sa nedali použiť semantické dáta a užívateľ bol o tom informovaný
+* Pridať popis ku scraperu, ako funguje a čo je základná štruktúra
+* Prerobiť aj zbytkové zobrazovanie informácií, teda informovať čo je hlavná štruktúra a čo sú doplnkové informácie ktoré sa môže ale nemusia ukladať
+** Urobiť tomu pekné UI aby sa to dalo používať
+
+
+## Ak bude čas ##
+* Viac prednastavených možností výberu, teda rôzne prednastavené konfigurácie
+* Pridať možnosť si uložiť jednotlivé komponenty, ako author a podobne aby používateľ nemusel zakaždým hľadať v HTML stránky
+* Štatistiky ak bude čas, ako často sa články menia, pridávajú...(je to len idea)
+* Poprípade definovať funkciu na uloženie "kľúčových slov" alebo niečo podobné
+
+

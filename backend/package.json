@@ -1,0 +1,39 @@
+{
+  "name": "diplomka",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "cheerio": "^1.0.0-rc.12",
+    "colors": "^1.4.0",
+    "cors": "^2.8.5",
+    "diff": "^5.2.0",
+    "dotenv": "^16.4.4",
+    "experss": "^0.0.1-security",
+    "express": "^4.18.2",
+    "fast-deep-equal": "^3.1.3",
+    "fast-xml-parser": "^4.3.5",
+    "mongodb": "^6.3.0",
+    "natural": "^6.12.0",
+    "node-cron": "^3.0.3",
+    "puppeteer": "^22.6.4",
+    "react-router": "^6.22.0",
+    "react-router-dom": "^6.22.0",
+    "request": "^2.88.2",
+    "rss-parser": "^3.13.0",
+    "wink-eng-lite-web-model": "^1.5.2",
+    "wink-nlp": "^2.1.0",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3",
+    "rss-url-parser": "^3.0.0"
+  }
+}
