@@ -61,41 +61,41 @@ function ArticleVersions(){
                     {articles.slice(startIndex, startIndex + articlesPerPage).map((article, index) => (
                       <div key={index}>
                         <article className="searchArticlePlace">
-                        <h3 className="articleSourceId">{article.sourceID}</h3>
-                        <div className="articleLinkAndImage">
-                            <div className="searchArticleImage">
-                              <img src={article.image} alt={article['image:alt']}/>
-                            </div>
-                            <div>
-                              <span>
-                                <h1 className="searchArticleLink">{article.title}</h1>
-                                <span className="">
-                                  <p>{article.pubdate}</p>
-                                  <p>guid: {article.guid}</p>
-                                </span>
-                                <p>{article.description}</p>
-                              </span> 
-                            </div>
-                        </div>
-                        {Object.entries(article).map(([key, value]) => {
-                            if (key !== 'title' && key !== 'link' && key !== 'image' && key !== 'description' && key !== 'sourceID' && key!== 'pubdate' && key!== 'guid' && key !== '_id') {
-                            if(key === 'content'){
-                                const htmlContent = value.replace(/<[^>]+>/g, '').trim();
-                                return (
-                                <div key={key}>
-                                    <p><b>{key}</b>: {htmlContent}</p>
+                            <h3 className="articleSourceId">{article.sourceID}</h3>
+                            <div className="articleLinkAndImage">
+                                <div className="searchArticleImage">
+                                <img src={article.image} alt={article['image:alt']}/>
                                 </div>
-                                );}
-                                else{
-                                return(
-                                    <div key={key}>
-                                    <p><b>{key}</b>: {typeof value === 'string' ? value : JSON.stringify(value)}</p>
-                                    </div>
-                                );
-                                }
-                            }
-                            return null;
-                        })}
+                                <div>
+                                    <span>
+                                        <h1 className="searchArticleLink">{article.title}</h1>
+                                        <span className="">
+                                        <p>{article.pubdate}</p>
+                                        <p>guid: {article.guid}</p>
+                                        </span>
+                                        <p>{article.description}</p>
+                                    </span> 
+                                    {Object.entries(article).map(([key, value]) => {
+                                    if (key !== 'title' && key !== 'link' && key !== 'image' && key !== 'description' && key !== 'sourceID' && key!== 'pubdate' && key!== 'guid' && key !== '_id') {
+                                    if(key === 'content'){
+                                        const htmlContent = value.replace(/<[^>]+>/g, '').trim();
+                                        return (
+                                        <div key={key}>
+                                            <p><b>{key}</b>: {htmlContent}</p>
+                                        </div>
+                                        );}
+                                        else{
+                                        return(
+                                            <div key={key}>
+                                            <p><b>{key}</b>: {typeof value === 'string' ? value : JSON.stringify(value)}</p>
+                                            </div>
+                                            );
+                                            }
+                                        }
+                                        return null;
+                                    })}
+                                </div>
+                            </div>
                         </article> 
                         </div>
                         ))}

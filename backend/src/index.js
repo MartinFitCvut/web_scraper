@@ -15,6 +15,10 @@ const { createMainTemplate } = require('./components/createMainTeplate'); //Vytv
 
 const { firstItem } = require('./components/firstItemData');
 
+const { searchForVersions, searchForCurrentArticle } = require('./components/versions/searchForVersions');
+
+const { connectSource } = require("./components/connectToMongo");
+
 const parseString = require('rss-url-parser');
 const app = express(); 
 const {analyzePage} = require('./components/scrapers/analyze');
@@ -55,7 +59,8 @@ let scrapersInFunction = {};
 
 
 //Pripojenie na databázu. Vráti collection s ktorou budeme pracovať
-async function connectSource(collectionType){
+/*
+async function connectSource(client, collectionType){
     try {
         await client.connect();
         //console.log("Connected to the database");
@@ -66,7 +71,7 @@ async function connectSource(collectionType){
         console.error('Error connecting to MongoDB:', error.message);    
     }
 }
-
+*/
 //Vráti "name" teda akésy id pre jednotlivé zdroje
 async function findNameByUrl(url) {
       try {
@@ -96,7 +101,7 @@ async function firstItem(address, scraperConfig){
         //const linkTo = firstItems.link;
         //console.log(linkTo)
         const pageMetadata = semanticsData //await analyzePage(linkTo); //Získa Sémantické dáta ak to je možné 
-        //const sourceCollection = await connectSource(sourceData);
+        //const sourceCollection = await connectSource(client, sourceData);
         //const query = { url: address };
         //const result = await sourceCollection.findOne(query);
         //const scraperConfig = result.scrapeConfiguration;//setupOfScrapperStructure 
@@ -179,8 +184,8 @@ async function setScraperActive(address){
 
         let parser = new Parser();
         let rssFeed = await parser.parseURL(address);
-        const collection = await connectSource(process.env.CURRENT);
-        const sourceCollection = await connectSource(sourceData);
+        const collection = await connectSource(client, process.env.CURRENT);
+        const sourceCollection = await connectSource(client, sourceData);
         const query = { url: address };
         const result = await sourceCollection.findOne(query);
         const scraperConfig = result.scrapeConfiguration;
@@ -212,7 +217,7 @@ async function setScraperActive(address){
                 const differenceNewData = compareRecords(newData, record);
                 const differenceRecord = compareRecords(record, JSON.parse(JSON.stringify(newData)));
                 if(differenceRecord.length !== 0 || differenceNewData.length !== 0){
-                    const versionsCollection = await connectSource(process.env.VERSIONS);
+                    const versionsCollection = await connectSource(client, process.env.VERSIONS);
                     await versionsCollection.insertOne(record);
                     console.log('Difference newData:');
                     differenceNewData.forEach((difference, index) => {
@@ -257,8 +262,8 @@ async function setScraperActive(address){
 async function setScraperActive(address, usejs) {
     try{
         const data = await parseString(address); //Získa RSS dáta, všetky záznami
-        const collection = await connectSource(process.env.CURRENT);//Prístup ku aktuálne uloženým článkom 
-        const sourceCollection = await connectSource(sourceData);//Prístup ku konf. zdrojom(primacnn,blesk....)
+        const collection = await connectSource(client, process.env.CURRENT);//Prístup ku aktuálne uloženým článkom 
+        const sourceCollection = await connectSource(client, sourceData);//Prístup ku konf. zdrojom(primacnn,blesk....)
         const query = { url: address };//Definovanie query
         const result = await sourceCollection.findOne(query);//Nájde záznam na základe url adresy a vráti ho (konfigurak na nejaký zdroj)
         const scraperConfig = result.scrapeConfiguration;//Získa konfiguráciu pre extrahovanie dát
@@ -444,7 +449,7 @@ async function setScraperActive(address, usejs) {
                 const differenceNewData = compareRecords(newData, record);
                 const differenceRecord = compareRecords(record, JSON.parse(JSON.stringify(newData)));
                 if(differenceRecord.length !== 0 || differenceNewData.length !== 0){
-                    const versionsCollection = await connectSource(process.env.VERSIONS); //prístup do kolekcie verzie v databáze
+                    const versionsCollection = await connectSource(client, process.env.VERSIONS); //prístup do kolekcie verzie v databáze
                     await versionsCollection.insertOne(record); // Vloží aktuálne uležený záznam 
                     console.log('Difference newData:');
                     differenceNewData.forEach((difference, index) => {
@@ -475,7 +480,7 @@ async function setScraperActive(address, usejs) {
         };
         delete scrapersInFunction[name];
         /*
-        const runscollection = await connectSource(process.env.RUNSDATA)
+        const runscollection = await connectSource(client, process.env.RUNSDATA)
         const runsData = {
             name: name,
             url: url,
@@ -490,7 +495,7 @@ async function setScraperActive(address, usejs) {
         emitScraperEvent(name, 'scraperCompleted');
         await updateSourceData(name, 'wait');
 
-        const runscollection = await connectSource(process.env.RUNSDATA);
+        const runscollection = await connectSource(client, process.env.RUNSDATA);
         console.log('Pripojené' + runscollection);
         const runsData = {
             name: name,
@@ -510,7 +515,7 @@ async function setScraperActive(address, usejs) {
 //Vráti záznamy zdrojov. Pre frontend zobrazenie
 async function getSourceData() {
     try {
-        const collection = await connectSource(process.env.SOURCEDATA);
+        const collection = await connectSource(client, process.env.SOURCEDATA);
         const data = await collection.find({}).toArray();
         return data;
     } catch (error) {
@@ -533,7 +538,7 @@ app.get("/", async (req, res) => {
 //Vráti mi url RSS zdroja podľa toho aké "name" - id zdroja máme. 
 async function getAddress(name){
     try{
-        const collection = await connectSource(process.env.SOURCEDATA);
+        const collection = await connectSource(client, process.env.SOURCEDATA);
         const existingData = await collection.findOne({ name: name });
         if (!existingData) {
             throw new Error('Záznam sa nenašiel');
@@ -551,7 +556,7 @@ async function getAddress(name){
 //Zistí či je daný zdroj aktívny alebo nie
 async function isActivated(name){
     try{
-        const collection = await connectSource(process.env.SOURCEDATA);
+        const collection = await connectSource(client, process.env.SOURCEDATA);
         const existingData = await collection.findOne({ name: name });
         if (!existingData) {
             throw new Error('Záznam sa nenašiel');
@@ -568,7 +573,7 @@ async function isActivated(name){
 //Zmení hodnotu "enabled" na základe toho aká bola predošlá (proste switch na hodnotu enabled)
 async function updateSourceData(name, value) {
     try {
-        const collection = await connectSource(process.env.SOURCEDATA);
+        const collection = await connectSource(client, process.env.SOURCEDATA);
         const existingData = await collection.findOne({ name: name });
         if (!existingData) {
             throw new Error('Záznam sa nenašiel');
@@ -586,7 +591,7 @@ async function updateSourceData(name, value) {
 // Scraper je spustený ale bol následne upravený časový interval
 async function updateFrequencyData(name, value) {
     try {
-        const collection = await connectSource(process.env.SOURCEDATA);
+        const collection = await connectSource(client, process.env.SOURCEDATA);
         const existingData = await collection.findOne({ name: name });
         if (!existingData) {
             throw new Error('Záznam sa nenašiel');
@@ -604,7 +609,7 @@ async function updateFrequencyData(name, value) {
 //Vymazanie zdroju
 async function deleteSource(name) {
     try {
-        const collection = await connectSource(process.env.SOURCEDATA);
+        const collection = await connectSource(client, process.env.SOURCEDATA);
         const existingData = await collection.findOne({ name: name });
         if (!existingData) {
             throw new Error('Záznam sa nenašiel');
@@ -640,7 +645,7 @@ async function startAndStopScraper(sourceName, frequency, address, startOrStop, 
 
                     // Ak pre daný zdroj nebeží žiadna cron úloha, spustíme novú
                     /*const nameValue = await findNameByUrl(address);
-                    const collection = await connectSource(process.env.SOURCEDATA);
+                    const collection = await connectSource(client, process.env.SOURCEDATA);
                     const query = { name: nameValue };
         
                     await collection.updateOne(query, { $set: { scrapeConfiguration: setupOfScrapperStructure } });*/
@@ -659,7 +664,7 @@ async function startAndStopScraper(sourceName, frequency, address, startOrStop, 
             } else { // Ak scraper aktivovaný ešte nebol alebo je vypnutý 
                 // Ak pre daný zdroj už beží cron úloha, zrušíme ju a vytvoríme novú
                     /*const nameValue = await findNameByUrl(address);
-                    const collection = await connectSource(process.env.SOURCEDATA);
+                    const collection = await connectSource(client, process.env.SOURCEDATA);
                     const query = { name: nameValue };
                     console.log(setupOfScrapperStructure);
                     await collection.updateOne(query, { $set: { scrapeConfiguration: setupOfScrapperStructure } });*/
@@ -905,7 +910,7 @@ async function makeMainStructure(maindata, additionaldata, name, setup, address)
         else if(setup === 'onlyRSS' || setup === 'onlySemantics' || setup === 'rssAndSemantics'){ // ak si používateľ vybral spomedzi extistujúcich šablón
             //console.log(setupOfScrapperStructure);
             const isCorrect = await checkForSemantics(semanticsData);
-            const setupOfScrapper= await createMainTemplate(address, setup, firstRssData, semanticsData, name,isCorrect);
+            const setupOfScrapper= await createMainTemplate(address, setup, firstRssData, semanticsData, name, isCorrect);
             return setupOfScrapper;
         }
         else{
@@ -974,7 +979,7 @@ app.post('/api/setActive/SetUp/:name', async (req, res) => {
                     const newData = await definedDataByUser(combinedData, address); // Vyhľadávanie v HTML 
                     //console.log(newData)
                     const nameOfAddress = await findNameByUrl(address);
-                    const collection = await connectSource(process.env.SOURCEDATA);
+                    const collection = await connectSource(client, process.env.SOURCEDATA);
                     const query = { name: nameOfAddress };
                     const setupOfScrapper = combinedData;
                     await collection.updateOne(query, { $set: { scrapeConfiguration: setupOfScrapper, activeConfiguration: setup } });
@@ -985,7 +990,7 @@ app.post('/api/setActive/SetUp/:name', async (req, res) => {
         }
         else if(setup === 'onlyRSS' || setup === 'onlySemantics' || setup === 'rssAndSemantics'){
             const nameValue = await findNameByUrl(address);
-            const collection = await connectSource(process.env.SOURCEDATA);
+            const collection = await connectSource(client, process.env.SOURCEDATA);
             const query = { name: nameValue };
             //console.log(setupOfScrapperStructure);
             const setupOfScrapper= await createMainTemplate(address, setup);
@@ -1030,11 +1035,11 @@ app.post('/api/setActive/:name/setup', async (req, res) => {
                     //const nameValue = {sourceID: sourceName};
                     const specifiedData = await makeMainStructure(maindata, additionaldata, sourceName, setup, address); //Vytvor šablónu
                     console.log(specifiedData);
-                    const collection = await connectSource(process.env.SOURCEDATA); //zapíš šablónu do databázy
+                    const collection = await connectSource(client, process.env.SOURCEDATA); //zapíš šablónu do databázy
                     const query = { url: address };
                     //console.log(setupOfScrapperStructure);
                     await collection.updateOne(query, { $set: { scrapeConfiguration: specifiedData, activeConfiguration: setup } }); // update šablóny
-                    /*const sourceCollection = await connectSource(sourceData);
+                    /*const sourceCollection = await connectSource(client, sourceData);
                     const query = { url: address };
                     const result = await sourceCollection.findOne(query);
                     const scraperConfig = result.scrapeConfiguration;*/
@@ -1104,7 +1109,7 @@ app.post('/api/setActive/:name', async (req, res) => {
         //console.log("Active")
         const receivedData = req.body;
         const name = receivedData.name;
-        const collection = await connectSource(process.env.SOURCEDATA);
+        const collection = await connectSource(client, process.env.SOURCEDATA);
         const query = { name: name };
         const result = await collection.findOne(query);
         const rss = await getFirstItem(result.url);
@@ -1170,7 +1175,7 @@ app.post('/api/setActive/SetUp/:name/helper', async(req, res) => {
 //Vyhľadávanie v databáze 
 async function findArticles(dateFrom, dateTo, timeFrom, timeTo, setupSourceID, setupGuid){
     try{
-        const collection = await connectSource(process.env.CURRENT);
+        const collection = await connectSource(client, process.env.CURRENT);
         let query = {};
         let dateTimeFrom; // Adding 1 hour in milliseconds; 
         let dateTimeTo;
@@ -1257,10 +1262,10 @@ app.post('/search', async(req, res) => {
     }
 });
 
-
+/*
 async function searchForVersions(versionguid){
     try{
-        const collection = await connectSource(process.env.VERSIONS);
+        const collection = await connectSource(client, process.env.VERSIONS);
         let query = {};
         query.guid = versionguid;
         const versions = await collection.find(query).toArray();
@@ -1273,7 +1278,7 @@ async function searchForVersions(versionguid){
 
 async function searchForCurrentArticle(versionguid){
     try{
-        const collection = await connectSource(process.env.CURRENT);
+        const collection = await connectSource(client, process.env.CURRENT);
         let query = {};
         query.guid = versionguid;
         const currentArticle = await collection.findOne(query);
@@ -1283,7 +1288,7 @@ async function searchForCurrentArticle(versionguid){
         console.log(error);
     }
 }
-
+*/
 
 
 app.post('/api/versions', async(req, res) => {
@@ -1367,7 +1372,7 @@ app.post('/api/getRuns/:name', async(req,res) => {
         const receivedData = req.body;
         const name = receivedData.name;
         console.log(name);
-        const collection = await connectSource(process.env.RUNSDATA);
+        const collection = await connectSource(client, process.env.RUNSDATA);
         const results = await collection.find({ name: name })
             .sort({ creationDate: -1 }) // Sort by createdAt field in descending order
             .limit(10) // Limit to 10 records
@@ -1433,7 +1438,7 @@ async function getOnlyRssData(rssFeed, address){
             object.source = "RSS";
             commonValues[key] = object;
         }
-        //const collection = await connectSource(process.env.SOURCEDATA);
+        //const collection = await connectSource(client, process.env.SOURCEDATA);
         //const query = { name: nameValue };
         //await collection.updateOne(query, { $set: { scrapeConfiguration: commonValues } });
 
@@ -1455,7 +1460,7 @@ async function getOnlySemanticsData(pageMetadata, address){
             object.source = "Semantics";
             commonValues[key] = object;
         }
-        //const collection = await connectSource(process.env.SOURCEDATA);
+        //const collection = await connectSource(client, process.env.SOURCEDATA);
         //const query = { name: nameValue };
         //await collection.updateOne(query, { $set: { scrapeConfiguration: commonValues } });
 
@@ -1501,7 +1506,7 @@ async function createTemplate(RssData, pageMetadata, address) {
             }            
         }
         //console.log(commonValues)
-    //const collection = await connectSource(process.env.SOURCEDATA);
+    //const collection = await connectSource(client, process.env.SOURCEDATA);
     //const query = { name: nameValue };
     //await collection.updateOne(query, { $set: { scrapeConfiguration: template } });
     return template;
