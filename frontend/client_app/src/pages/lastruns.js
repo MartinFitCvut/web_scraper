@@ -42,9 +42,15 @@ function LastRuns({ name }) {
 
   return (
     <div>
-      <input type="number" placeholder="počet"  value={numofResults} onChange={handleNumber} />
-      <button onClick={handleLastRuns}>Poslené behy</button>
-      <button onClick={() => {setShow(!show)}} className="showbutton" >{show ? (<p>skryť</p>):(<p>zobraziť</p>)}</button>
+      <div className="lastRunsShow">
+        <span>
+          <input type="number" placeholder="počet"  value={numofResults} onChange={handleNumber} />
+          <button className="dropbtn" onClick={handleLastRuns}>Vyhľadať</button>
+        </span>
+        <span>
+          <button onClick={() => {setShow(!show)}} className="dropbtn" >{show ? ('skryť'):('zobraziť')}</button>
+        </span>
+      </div>
       <div className={show ? '' : 'nonactive'}>
         {lastRuns.map((run, index) => (
           <div key={index} className="lastRuns">

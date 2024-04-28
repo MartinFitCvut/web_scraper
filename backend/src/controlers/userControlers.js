@@ -15,6 +15,7 @@ const {firstItem} = require('../utils/firstItemData');
 const {updateFrequencyData, updateSourceData} = require('../utils/updateFrequency');
 const {setScraperActive} = require('../utils/setScraperActive');
 const {startAndStopScraper} = require('../utils/startAndStopScraper');
+const {TestCronValues} = require('../utils/testCronValues');
 
 const { getCache, setCache } = require('../utils/cache');
 
@@ -299,7 +300,8 @@ exports.setScraperRunning = async(req, res) => {
         const sourceName = receivedData.name;
         const address = await getAddress(sourceName);
         const usejs = receivedData.usejs;
-        const frequencyHour = receivedData.frequencyHour;
+        const frequency = receivedData.frequency;
+        //const frequencyHour = receivedData.frequencyHour;
 
         if (receivedData.start !== undefined && receivedData.start !== null) { // ked príde od používateľa Start value
             // Vykonaj akciu pre spustenie alebo zastavenie procesu
@@ -329,22 +331,27 @@ exports.setScraperRunning = async(req, res) => {
                     if(receivedData.frequency === 0){
                         await setScraperActive(address, usejs);
                         await updateSourceData(sourceName, 'stop');
+                        //await updateFrequencyData(sourceName, 0, parseInt(0));
+                        await updateFrequencyData(sourceName, 0);
                         emitScraperEvent(sourceName, 'scraperStopped');
                         res.json('started');
                     }
-                    else if(receivedData.frequency || frequencyHour){
-                        const frekvencia = parseInt(receivedData.frequency);
-                        console.log('Setting frequency to', frekvencia);
+                    else /*if(receivedData.frequency || frequencyHour)*/{
+                        //const frekvencia = parseInt(receivedData.frequency);
+                        //console.log('Setting frequency to', frekvencia);
                         console.log('Starting process...');
-                        await updateFrequencyData(sourceName, frekvencia, parseInt(frequencyHour)); //zmena frekvencie 
-                        await startAndStopScraper(sourceName, frekvencia, parseInt(frequencyHour),address, true, usejs); // spusť scraper 
+                        //await updateFrequencyData(sourceName, frekvencia, parseInt(frequencyHour)); //zmena frekvencie 
+                        await updateFrequencyData(sourceName, frequency); //zmena frekvencie 
+                        //await startAndStopScraper(sourceName, frekvencia, parseInt(frequencyHour),address, true, usejs); // spusť scraper
+                        await startAndStopScraper(sourceName, frequency, address, true, usejs); // spusť scraper  
                         res.json('started');
 
                     }
+                    /*
                     else{
                         res.json('No frequency setup');
                         console.log('No frequency setup');
-                    }
+                    }*/
                     //else{
                     /*else if(frekvencia === 0){
                        
@@ -378,9 +385,11 @@ exports.setScraperRunning = async(req, res) => {
             } else {
                 console.log('Stopping process...');
                 await updateSourceData(sourceName, 'stop');
-                await updateFrequencyData(sourceName, 0, 0);
+                //await updateFrequencyData(sourceName, 0, 0);
+                await updateFrequencyData(sourceName, 0);
                 //stopScraper(sourceName);
-                await startAndStopScraper(sourceName, receivedData.frequency, frequencyHour, address, false, false); //zastavenie scrapera  
+                //await startAndStopScraper(sourceName, receivedData.frequency, frequencyHour, address, false, false); //zastavenie scrapera  
+                await startAndStopScraper(sourceName, receivedData.frequency, address, false, false); //zastavenie scrapera 
                 res.json('stoped');
                 
             }
@@ -429,6 +438,20 @@ exports.getSpecificRuns = async(req, res) => {
     catch(error){
         console.log(error);
     }
+}
+
+exports.cronValuesTester = async(req, res) =>{
+    try{
+        const value = req.body.value;
+        const cronValues = await TestCronValues(value);
+        //console.log(cronValues)
+        res.json(cronValues);
+        
+    }
+    catch(error){
+        console.log(error);
+    }
+
 }
 
 function emitScraperEvent(scraperId, event) {

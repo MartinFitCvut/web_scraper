@@ -1,0 +1,99 @@
+.cronscheduler{
+    width: 80%;
+    max-width: 800px;
+    margin: auto;
+    min-height: 400px;
+    border: 1px solid grey;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.cronbuttons{
+    border-bottom: 1px solid grey;
+}
+
+.cronbuttons button{
+    height: 40px;
+    width: 80px;
+    cursor: pointer;
+    border: none;
+    color: black;
+    font-size: medium;
+    font-family: "Roboto", sans-serif;
+    transition: 200ms;
+}
+.cronbuttons button:hover{
+    background: hsl(199, 55%, 83%);
+    transition: 200ms;
+}
+
+.activebutton{
+    background:#39b0e7;
+    
+}
+.noactive{
+    background: #89CFF0;
+}
+
+.cronminutes{
+    margin-left: 10px;
+}
+
+.cronminutes p{
+    font-size: 14px;
+    margin: 5px;
+}
+
+.resultDates{
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    align-items: center;
+    margin-top: 20px;
+    color: grey;
+    font-size: small;
+}
+
+.resultDatesCenter{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+
+.cronOneDayDiv{
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    margin: auto;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    padding: 5px;
+    background-color: #d5d9db;
+    border-bottom: 1px solid gray;
+    border-right: 1px solid gray;
+    border-radius: 10px;
+    box-shadow: 3px 3px 5px #d2d2d2;
+}
+
+.cronOneDayDiv p {
+    font-weight: bold;
+    font-size: medium;
+}
+
+
+.cronOneDay{
+    margin-left: 20px;
+    width: 150px;
+    height: 30px;
+    font-size: medium;
+    font-family: "Roboto", sans-serif;
+    border-radius: 5px;
+    border: 1px solid grey;
+}
+
+.cronOneDay::-webkit-calendar-picker-indicator {
+    width: 15px;
+    height: 15px;
+    background-image: url('../images/clock.png');
+}

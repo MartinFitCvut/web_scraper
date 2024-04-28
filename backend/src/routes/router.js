@@ -36,4 +36,6 @@ router.post('/api/getRuns/:name', userControlers.getRuns);
 
 router.post('/api/getSpecificRun/:name', userControlers.getSpecificRuns);
 
+router.post('/api/cronValuesTester', userControlers.cronValuesTester);
+
 module.exports = router;

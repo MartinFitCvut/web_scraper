@@ -13,8 +13,8 @@ dotenv.config();
 function emitScraperEvent(scraperId, event) {
     global.eventEmitter.emit(`${scraperId}-${event}`, { scraperId, status: event });
 }
-
-async function startAndStopScraper(sourceName, frequency, frequencyHour, address, startOrStop, usejs) {
+//async function startAndStopScraper(sourceName, frequency, frequencyHour, address, startOrStop, usejs) {
+async function startAndStopScraper(sourceName, frequency, address, startOrStop, usejs) {
     // Inicializácia premennej scrapersInFunction, ak nie je definovaná
     //scrapersInFunction[sourceName] = scrapersInFunction[sourceName] || false;
     //const eventEmitter = getCache('events');
@@ -24,10 +24,10 @@ async function startAndStopScraper(sourceName, frequency, frequencyHour, address
     //let scrapersInFunction = getCache('scrapersInFunction'); 
 
     console.log(frequency);
-    console.log(frequencyHour);
     console.log(global.runningScrapers);
     console.log(global.scrapersInFunction);
     if (startOrStop) { //Ak je true tak zapínam scraper
+        /*
         if (frequency > 0 || frequencyHour > 0) { //Ak je frekvencia väčšia ako 0 spúšťam opakované scrapovanie na základe tejto hodnoty
             let minutes = frequency;
             let hours = frequencyHour;
@@ -36,7 +36,7 @@ async function startAndStopScraper(sourceName, frequency, frequencyHour, address
                 minutes = 0;
                 hours = 0;
                 days = 1;
-            }
+            }*/
 
             if (global.runningScrapers[sourceName]) { // Zisťujem či scraper bol už aktivovaný 
                 if (global.scrapersInFunction[sourceName]) { // Check či scraper právé beži teda či sťahuje dáta 
@@ -52,7 +52,7 @@ async function startAndStopScraper(sourceName, frequency, frequencyHour, address
                     global.runningScrapers[sourceName].stop(); //Zastavenie scrapera pre novú inicializáciu
 
                     await setScraperActive(address, usejs);
-                    const taskId = cron.schedule(`*/${minutes} /${hours} /${days} * *`, async () => {  //Nastavenie časovača kedy sa scraper bude spúštať
+                    const taskId = cron.schedule(`${frequency}`, async () => {  //Nastavenie časovača kedy sa scraper bude spúštať
                         console.log('Running upadated scraper for', sourceName);
                         try {
                             await setScraperActive(address, usejs);  //Spustenie scrapera
@@ -62,24 +62,26 @@ async function startAndStopScraper(sourceName, frequency, frequencyHour, address
                     });
                     // Uložíme referenciu na novú cron úlohu pre daný zdroj
                     global.runningScrapers[sourceName] = taskId; 
+                    taskId.start();
                     //setCache('runningScrapers', runningScrapers, 0);
                 }
             } else { // Ak scraper aktivovaný ešte nebol alebo je vypnutý 
                 // Ak pre daný zdroj už beží cron úloha, zrušíme ju a vytvoríme novú
                     await setScraperActive(address, usejs);
-                    const taskId = cron.schedule(`*/${minutes} /${hours} /${days} * *`, async () => {  //spustenie scrapera 
+                    const taskId = cron.schedule(`${frequency}`, async () => {  //spustenie scrapera 
                     console.log('Running new scraper for', sourceName);
                     try {
                         await setScraperActive(address, usejs);
                     } catch (error) {
                         console.error('Chyba pri spustení scraperu:', error);
                     }
+                    taskId.start();
                 });
                 // Aktualizujeme referenciu na cron úlohu pre daný zdroj
                 global.runningScrapers[sourceName] = taskId;
                 
             }
-        }
+        //}
     } else if (!startOrStop) { //Zastavenie scrapera 
         // Zastavíme cron úlohu pre daný zdroj
         //runningScrapers = getCache('runningScrapers')

@@ -2,6 +2,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  font-family: "Roboto", sans-serif;
 }
 
 body{
@@ -98,7 +99,7 @@ body{
 .clearfix {
   display: flex;
   text-align: left;
-  margin: 10px;
+  margin: 10px 10px 0px 10px;
 }
 
 .half {
@@ -127,9 +128,7 @@ body{
 .textfield {
   width: 30%;
   height: 80vh;
-  overflow-y: auto;
   border: 1px solid;
-  padding-top: 10px;
   word-break: break-word;
   white-space: pre-wrap;
   resize: none;
@@ -386,6 +385,63 @@ textarea {
   display: inline-block;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
+  }
+
+
+  .oneTimeScraper{
+    display: flex;
+    width: 100%;
+    min-width: 300px;
+    justify-content: space-between;
+    align-items: baseline;
+    border: 1px solid grey;
+    border-radius: 10px;
+    box-shadow: 5px 5px 5px grey;
+  }
+
+  .oneTimeScraper *{
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+
+  .cronScraper{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    border: 1px solid grey;
+    border-radius: 10px;
+    box-shadow: 5px 5px 5px grey;
+    margin-top: 50px;
+  }
+
+  .cronScraper *{
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+
+
+  .StartAndStop{
+    text-align: start;
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+    margin: auto;
+    margin-top: 6%;
+  }
+
+  .isrunningscraper{
+    height: fit-content;
+    margin-bottom: 15px;
+    background-color: #dfdfdf
+  }
+  .isrunningscraper *{
+    margin: 0px;
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+  .isrunningscraper p{
+    color: grey;
   }
 
   @keyframes rotation {

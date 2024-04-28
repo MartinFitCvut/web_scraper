@@ -14,6 +14,7 @@
     "cheerio": "^1.0.0-rc.12",
     "colors": "^1.4.0",
     "cors": "^2.8.5",
+    "cron-parser": "^4.9.0",
     "diff": "^5.2.0",
     "dotenv": "^16.4.4",
     "experss": "^0.0.1-security",
