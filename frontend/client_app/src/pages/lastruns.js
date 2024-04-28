@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { useParams } from 'react-router-dom';
-import '../css/lastruns.css'
+import '../css/lastruns.css';
+import axios from 'axios';
+import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 function LastRuns({ name }) {
- 
 
   const [lastRuns, setLastRuns] = useState([]);
   const [show, setShow] = useState(false);
-  const [activeItem, setActiveItem] = useState(null);
+  const [numofResults, setNumOfResults] = useState(10);
 
   const handleLastRuns = async () => {
     console.log(name);  // Log the name prop
@@ -17,7 +19,7 @@ function LastRuns({ name }) {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name: name })
+        body: JSON.stringify({ name: name, number: numofResults })
       });
 
       if (response.ok) {
@@ -29,12 +31,18 @@ function LastRuns({ name }) {
       console.error("Error fetching data:", error);
     }
   }
-  const toggleItem = (index) => {
-    setActiveItem(activeItem === index ? null : index);
+
+  const handleNumber = (event) => {
+    const inputValue = event.target.value;
+    // Kontrola, či je zadaná hodnota kladná
+    if (inputValue >= 0) {
+      setNumOfResults(inputValue);
+    }
   };
 
   return (
     <div>
+      <input type="number" placeholder="počet"  value={numofResults} onChange={handleNumber} />
       <button onClick={handleLastRuns}>Poslené behy</button>
       <button onClick={() => {setShow(!show)}} className="showbutton" >{show ? (<p>skryť</p>):(<p>zobraziť</p>)}</button>
       <div className={show ? '' : 'nonactive'}>
@@ -45,14 +53,9 @@ function LastRuns({ name }) {
             <p>New Articles: {run.newArticles.length}</p>
             <p>Updated Articles: {run.updatedArticles.length}</p>
             <p>Creation Date: {new Date(run.creationDate).toLocaleString()}</p>
-            <button  className='showbutton' onClick={() => toggleItem(index)}>
-              {activeItem === index ? 'Skryť' : 'Zobraziť'}
+            <button  className='showbutton'>
+              <Link to={`/lastRuns/${name}/${run.creationDate}`} state={{news: run.newArticles, update: run.updatedArticles}}>  Zobraziť </Link>
             </button>
-            {activeItem === index && (
-              <div>
-                
-              </div>
-            )}
           </div>
         ))}
       </div>

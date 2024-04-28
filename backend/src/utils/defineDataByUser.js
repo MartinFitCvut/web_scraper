@@ -1,14 +1,34 @@
+const { getCache, setCache } = require('../utils/cache');
+const {findElements} = require('../utils/findElements');
+const {getFirstItem} = require('./getFirstRSSItem');
+const {analyzePage} = require('./analyzePage');
 
-
-async function definedDataByUser(data, usejs){
+async function definedDataByUser(address, name, data, usejs){
     try{
-        const firstItems = firstRssData //await getFirstItem(address)//rssFeed.items[0];   // Získa prvý záznam z RSS a uloží si dáta do  šablóny
-    //const rssData = await parseString(address)
-        
+
+        let firstItems
+        if(!getCache(`${name}_rss`)){
+            const rss = await getFirstItem(address); 
+            setCache(`${name}_rss`, rss, 300);   
+            firstItems = rss;
+        }
+        else{
+            firstItems = getCache(`${name}_rss`);
+        }   
+    
         let newData = {};
         const linkTo = firstItems.link;
-        const pageMetadata = semanticsData // await analyzePage(linkTo); //Získa Sémantické dáta ak to je možné 
-    
+        let pageMetadata;
+        if(!getCache(`${name}_semantics`)){
+            const seman = await analyzePage(linkTo);
+            setCache(`${name}_semantics`, seman, 300);
+            pageMetadata = seman;
+        }
+        else{
+            pageMetadata = getCache(`${name}_semantics`);
+        }
+         
+        const loadHTML = getCache(`${name}_loadHTML`);
         for(key in data){ // Definovaná štruktúra od používateľa - teda jeho vytvorená šablóna na extrahovanie dát
             const keyValue = data[key];
             if(key === "sourceID"){
@@ -57,5 +77,8 @@ async function definedDataByUser(data, usejs){
     catch (error) {
         console.log(error);
     }
+}
 
+module.exports = {
+    definedDataByUser
 }

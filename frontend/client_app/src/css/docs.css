@@ -1,0 +1,33 @@
+.document{
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    box-shadow: 10px 10px 10px grey;
+}
+
+.firstBorder{
+    width: 80%;
+    border-bottom: 1px solid lightgray;
+}
+.navbar {
+    background: aqua;
+    width: 50px;
+    position: fixed;
+    transition: width 100ms linear;
+   
+  }
+  
+  .navbar:hover {
+    width: 200px;
+  }
+  
+  .menu-items {
+    transition-delay: 200ms;
+    display: none;
+  }
+  
+  .navbar:hover .menu-items {
+    display: block;
+    margin-left: 10px;
+  }
+  

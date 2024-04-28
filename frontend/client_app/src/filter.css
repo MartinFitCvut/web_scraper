@@ -2,13 +2,15 @@
     display: flex;
     flex-direction: column;
     width: 400px;
-    background-color: aquamarine;
     height: fit-content;
+    border: 1px solid grey;
+    box-shadow: 5px 5px 5px grey;
+    border-radius: 10px;
    
 }
 
 .filter_place{
-    margin-left: 2%;
+    margin-left: 10px;
     margin-right: 2%;
     display: flex;
    
@@ -21,21 +23,23 @@
 .sort_and_volume{
     display: flex;
     justify-content: end;
+    align-items: end;
     margin: 0px;
     margin-right: 2%;
     margin-left: 2%;
 }
 .sort_and_volume p{
     padding-left: 2%;
+    padding-right: 2%;
     margin: 0px;
 }
 
 .datePicker{
     background-color: white;
-    margin-top: 10px;
+    margin-left: 5px;
     margin-right: 10px;
-    padding-left: 10px;
-    padding-top: 10px;
+    padding: 10px;
+
 }
 
 
@@ -52,6 +56,36 @@
     font-style: normal;
     position: absolute;
     z-index: 1;
+}
+
+.articleFullLinkAndImage{
+  display: flex;
+  margin: 25px 15px 25px 0px;
+  align-items: start;
+  min-height: 350px;
+  border: 1px solid rgb(91, 91, 91);
+  border-radius: 20px;
+  box-shadow: 10px 10px 5px rgb(107, 111, 111);  
+  padding-bottom: 20px;
+}
+
+.spaceforarticle{
+  padding-top: 20px;
+  padding-bottom: 20px;
+  margin-right: 50px;
+}
+
+.searchArticleImageVer{
+  position: relative;
+  width: 400px; /* Width of the triangle container */
+  height: 350px; /* Height of the triangle container */
+  margin-right: 25px;
+}
+.searchArticleImageVer img{
+  width: inherit; /* Make sure the image covers the entire div */
+  height: inherit; /* Make sure the image covers the entire div */
+  object-fit: cover; /* Maintain aspect ratio and cover the container */
+  border-radius: 19px;
 }
 
 .articleLinkAndImage{
@@ -144,9 +178,16 @@
 }
 
 .dropbtn {
-  width: 30px;
+  height: 35px;
+  width: fit-content;
   cursor: pointer;
-  transition: 300ms;
+  font-size: medium;
+  padding: 5px;
+  font-family: "Roboto", sans-serif;
+  font-weight: bold;
+  border: 1px solid black;
+  position: relative;
+  background-color: rgba(0, 0, 0, 0);
 }
 
 .dropdown {
@@ -161,12 +202,37 @@
 }
 
 .dropdown:hover .dropdown-content {
-  display: block;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+ 
 }
+
+.downloadButton{
+  cursor: pointer;
+  font-size: small;
+  padding: 5px;
+  font-family: "Roboto", sans-serif;
+  font-weight: bold;
+  margin-top: 5px;
+  border: 1px solid black;
+  position: relative;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.downloadButton:hover{
+  background-color: #89CFF0;
+}
+
+.dropbtn:hover{
+  transition: 300ms;
+  background: #89CFF0;
+} 
 
 .dropdown:hover .dropbtn {
   transition: 300ms;
-  transform: translate(0px, -10%); 
+  background: #89CFF0;
 }
 
 .buttons{
@@ -174,6 +240,26 @@
   justify-content: space-between;
   width: 95%;
   align-self: end;
+}
+
+.wordsearch{
+  height: 40px;
+    font-size: large;
+    width: 90%;
+    margin: auto;
+    border-radius: 5px;
+    border: 1px solid grey;
+}
+
+.version_articles{
+  width: 90%;
+  margin: auto;
+}
+
+@media only screen and (max-width: 1000px) {
+  .articleLinkAndImage{
+    display: flow-root;
+  }
 }
 
 /*

@@ -22,7 +22,8 @@ function SetupPage() {
   const [data, setData] = useState(null);
   const [responseData, setResponceData] = useState('');
   const [isActive, setIsActive] = useState('');
-  const [frequency, setFrequency] = useState(0);
+  const [frequency, setFrequency] = useState('');
+  const [frequencyHour, setFrequencyHour] = useState('');
   const [activeNow, setActiveNow] = useState(null);
   const [rssData, setRssData] = useState('');
   const [semanticsData, setSemanticsData] = useState('');
@@ -66,7 +67,10 @@ function SetupPage() {
 
   useEffect(() => {
     const eventSource = new EventSource(`http://localhost:5000/events/${name}`);
-
+    eventSource.onopen = function(event) {
+      console.log('Spojenie bolo úspešne nadviazané');
+    };
+    eventSource.onerror = function(event){ console.log("Error nepreipojené") }
     eventSource.onmessage = function(event) {
       const data = JSON.parse(event.data);
       const newMessage = data.status;
@@ -79,10 +83,9 @@ function SetupPage() {
       else{
         setIsActive('Scraper je zastavený');
       }
-      
     };
-
     return () => {
+      console.log("Zatváram");
       eventSource.close();
     };
   }, [name]);
@@ -326,7 +329,7 @@ function SetupPage() {
               return "";
             }
       }
-      else if(isActive === 'clientConfig'){
+      /*else if(isActive === 'clientConfig'){
         switch (key) {
           case "onlyRSS":
               return prevState === "onlyRSS" ? "clientConfig" : "onlyRSS";
@@ -337,7 +340,7 @@ function SetupPage() {
           default:
               return "";
             }
-      }
+      }*/
       
       
   });
@@ -404,11 +407,11 @@ function SetupPage() {
 
   // Your component logic and return statement...
 
- 
+ /*
   useEffect(() => {
     sendHelpDataToServer();
   }, [helpSearch]);
-
+*/
   
   useEffect(() => {
     const fetchData = async () => {
@@ -436,23 +439,79 @@ function SetupPage() {
   }, []);
 
   
-  const handleFrequencyChange = (event) => {
+  const handleFrequencyChangeMinutes = (event) => {
     const inputValue = event.target.value;
     // Kontrola, či je zadaná hodnota kladná
-    if (inputValue >= 0) {
-      setFrequency(inputValue);
+    console.log(frequencyHour);
+    if(frequencyHour == 0){
+      if(inputValue < 5){
+        setFrequency(5);
+      }
+      if (inputValue >= 5 && inputValue <= 59) {
+        setFrequency(inputValue);
+      }
+    }
+    if(frequencyHour > 0 && frequencyHour < 24){
+      if (inputValue >= 0 && inputValue <= 59) {
+        setFrequency(inputValue);
+      }
+    }
+    if(frequencyHour == 24){
+      setFrequency(0);
+    }
+    
+  };
+  const handleFrequencyChangeHour = (event) => {
+    const inputValue = event.target.value;
+    // Kontrola, či je zadaná hodnota kladná
+    if (inputValue >= 0 && inputValue <= 24) {
+      if(inputValue == 24){
+        setFrequency(0);
+      }
+      if(inputValue == 0 && frequency < 5){
+        setFrequency(5);
+      }
+      setFrequencyHour(inputValue);
     }
   };
 
-  const handleStart = async () => {
+  const handleStartOnce = async () => {
     if(ableSend){
+      setMessages('');
       try {
         const response = await fetch(`http://localhost:5000/api/setActive/${name}/setup`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ start: true, frequency: frequency, name: name , maindata: mandatoryData, additionaldata: additionalData, activeNow: activeNow, usejs: useJavaScript})
+          body: JSON.stringify({ start: true, frequency: 0, name: name , maindata: mandatoryData, additionaldata: additionalData, activeNow: activeNow, usejs: useJavaScript})
+        });
+        if (response.ok) {
+          const jData = await response.json();
+          setResponceData(jData);
+        } else {
+          console.error('Nepodarilo sa spustiť proces');
+        }
+      } catch (error) {
+        console.error('Chyba:', error);
+      }
+    }
+    else{
+      setMessages('Nie sú dobre vyplnené údaje, prosím skontrolujte zadané selektory');
+    }
+    
+  };
+
+  const handleStart = async () => {
+    if(ableSend){
+      setMessages('');
+      try {
+        const response = await fetch(`http://localhost:5000/api/setActive/${name}/setup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ start: true, frequency: frequency, frequencyHour: frequencyHour,name: name , maindata: mandatoryData, additionaldata: additionalData, activeNow: activeNow, usejs: useJavaScript})
         });
         if (response.ok) {
           const jData = await response.json();
@@ -469,7 +528,7 @@ function SetupPage() {
       }
     }
     else{
-      console.log('SOMETHING IS NOT OKEJ');
+      setMessages('Nie sú dobre vyplnené údaje, prosím skontrolujte zadané selektory');
     }
     
   };
@@ -511,7 +570,7 @@ function SetupPage() {
       current.selectionStart = current.selectionEnd = start + 1;
     }
   }
-
+/*
   const sendHelpDataToServer = async() => {
     try{
       const response = await fetch(`http://localhost:5000/api/setActive/SetUp/${name}/helper`, {
@@ -533,9 +592,10 @@ function SetupPage() {
       console.error('Chyba:', error);
     }
 };
-  
+*/
   function wrongSelector(jsondata){
     let canBeSend = true;
+  
     for(const key in jsondata){
       if(jsondata[key] === '**/FALSE/**'){
         canBeSend = false;
@@ -601,6 +661,7 @@ function SetupPage() {
     }
     else{
       setAbleSend(false);
+      setData(jsondata);
     }
   }
   
@@ -867,7 +928,7 @@ function SetupPage() {
                     <p>Kategória: {data.category}</p>
                     <p>Typ: {data.type}</p>
                 </div>
-                <img src={data.image} alt={data['image:alt']} className="articleImage"/>
+                <img src={data.image} alt={data['image:alt'] ? data['image:alt'] : data.image_alt} className="articleImage"/>
                 <div className="articleDesc">
                   <span className="date_content">
                     <p>{data.pubdate}</p>
@@ -877,7 +938,7 @@ function SetupPage() {
                 </div>
                 <h2>Other content</h2>
                 {Object.entries(data).map(([key, value]) => {
-                  if (key !== 'title' && key !== 'link' && key !== 'image' && key !== 'description' && key !== 'sourceID' && key !== 'site_name' && key !== 'type' && key !== 'category' && key!== 'image:height' && key !== 'image:width' && key!== 'image:alt' && key!== 'pubdate' && key!== 'guid') {
+                  if (key !== 'title' && key !== 'link' && key !== 'image' && key !== 'description' && key !== 'sourceID' && key !== 'site_name' && key !== 'type' && key !== 'category' && key!== 'image:height' && key !== 'image:width' && key!== 'image:alt' && key!== 'pubdate' && key!== 'guid' && key !== 'image_alt') {
                     if(key === 'content'){
                       //const htmlContent = value.replace(/<[^>]+>/g, '').trim();
                       return (
@@ -987,7 +1048,12 @@ function SetupPage() {
         </div>      
       </div>
         <h3>Spustenie Scraper</h3>
-        <input type="number" value={frequency} onChange={handleFrequencyChange} />
+        <p>Spustiť scraper jednorázovo</p>
+        <button onClick={handleStartOnce}>Spustiť</button>
+        <p>Hodiny</p>
+        <p>Minúty</p>
+        <input type="number" placeholder="hodiny"  value={frequencyHour} onChange={handleFrequencyChangeHour} />
+        <input type="number" placeholder="minúty"  value={frequency} onChange={handleFrequencyChangeMinutes} />
         <button onClick={handleStart}>Start</button>
         <button onClick={handleStop}>Stop</button>
         <p>{responseData}</p> 

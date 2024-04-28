@@ -16,11 +16,11 @@ function Header(){
             </span> 
             <div className="homeButtonText">
                 <span className="homeButtonTextElements">
-                    Dokumentácia
+                    <Link to='/docs'style={{textDecoration: 'none', color: 'black'}} state={'search'}>Dokumentácia</Link>
                 </span>
                     
                 <span className="homeButtonTextElements">
-                    <Link to='/search'style={{textDecoration: 'none', color: 'black'}}>Zobraziť články</Link>
+                    <Link to='/search'style={{textDecoration: 'none', color: 'black'}} state={'search'}>Zobraziť články</Link>
                 </span>
             </div>
                

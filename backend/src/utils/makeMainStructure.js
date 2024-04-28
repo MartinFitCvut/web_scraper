@@ -1,3 +1,4 @@
+const { getCache } = require('./cache');
 const {createMainTemplate} = require('./createMainTemplate');
 
 function checkForMainKeysReppetition(data){
@@ -55,8 +56,10 @@ async function makeMainStructure(maindata, additionaldata, name, setup, address)
         }
         else if(setup === 'onlyRSS' || setup === 'onlySemantics' || setup === 'rssAndSemantics'){ // ak si používateľ vybral spomedzi extistujúcich šablón
             //console.log(setupOfScrapperStructure);
+            const firstRssData = getCache(`${name}_rss`);
+            const semanticsData = getCache(`${name}_semantics`);
             const isCorrect = await checkForSemantics(semanticsData);
-            const setupOfScrapper= await createMainTemplate(address, setup, firstRssData, semanticsData, name, isCorrect);
+            const setupOfScrapper= await createMainTemplate(setup, firstRssData, semanticsData, name, isCorrect);
             return setupOfScrapper;
         }
         else{

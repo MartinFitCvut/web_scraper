@@ -42,16 +42,14 @@ async function existingUrl(url){
             catch(error){
                 console.log("Neplatná adresa");
                 return false;
-            }
-            
-            
+            }   
         }
         else{
             return false;
         }
     }
     catch (error) {
-        console.error('Chyba pri vyhľadávaní v databáze pri existingName:', error);
+        console.error('Chyba pri vyhľadávaní v databáze:', error);
         throw error;
     } 
 }
