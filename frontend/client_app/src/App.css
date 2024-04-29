@@ -69,12 +69,14 @@ body{
   justify-content: space-between;
   margin: auto;
   margin-bottom: 50px;
-  width: 800px;
+  max-width: 650px;
+  min-width: 400px;
+  
   border: 1px solid;
   border-radius: 10px;
   padding: 10px;
   box-shadow: 5px 5px 10px 0px grey;
-  align-items: baseline;
+  align-items: center;
 }
 .sourcesBoxDiv{
   display: flex;
@@ -93,13 +95,41 @@ body{
   background-color: rgb(255, 190, 69);
 }
 
+.sourcesBoxButton svg{
+  color: black;
+}
+
+.sourcesBoxButton svg:hover{
+  color: #3366ff;
+}
+
 .active-text {
   color: white;
 }
+
+.yourSources{
+  display: flex;
+  width: 80%;
+  margin: auto;
+  margin-top: 100px;
+  justify-content: space-evenly;
+  align-self: start;
+}
+
+.yourSources h1{
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+  font-size: 50px;
+  margin: 0px;
+}
+
+
 .clearfix {
   display: flex;
   text-align: left;
   margin: 10px 10px 0px 10px;
+  background-color: white;
 }
 
 .half {
@@ -318,6 +348,7 @@ textarea {
   display: flex;
   width: 30%;
 }
+
 
 .templateButtons button{
   cursor: pointer;

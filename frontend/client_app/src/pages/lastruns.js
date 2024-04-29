@@ -60,7 +60,7 @@ function LastRuns({ name }) {
             <p>Updated Articles: {run.updatedArticles.length}</p>
             <p>Creation Date: {new Date(run.creationDate).toLocaleString()}</p>
             <button  className='showbutton'>
-              <Link to={`/lastRuns/${name}/${run.creationDate}`} state={{news: run.newArticles, update: run.updatedArticles}}>  Zobraziť </Link>
+              <Link to={`/lastRuns/${name}/${run.creationDate}`} state={{news: run.newArticles, update: run.updatedArticles}} style={{textDecoration: 'none', color: 'black'}}>  Zobraziť </Link>
             </button>
           </div>
         ))}

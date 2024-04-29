@@ -11,6 +11,7 @@ import Button from '@mui/material/Button';
 import { format } from 'date-fns';
 import LastRuns from "./lastruns";
 import CronScheduler from "../components/cronsetup/cronscheduler";
+import Tooltip from '@mui/material/Tooltip';
 
 //import SSEComponent from '../components/currentRuns';
 
@@ -24,7 +25,6 @@ function SetupPage() {
   const [responseData, setResponceData] = useState('');
   const [isActive, setIsActive] = useState('');
   const [frequency, setFrequency] = useState('');
-  //const [frequencyHour, setFrequencyHour] = useState('');
   const [activeNow, setActiveNow] = useState(null);
   const [rssData, setRssData] = useState('');
   const [semanticsData, setSemanticsData] = useState('');
@@ -35,7 +35,6 @@ function SetupPage() {
   });
   const [ableSend, setAbleSend] = useState(true);
   const [address, setAddress] = useState('');
-  //const [setupdata, setSetupData] = useState('');
   const textareaRef = useRef(null);
   const [additionalData, setAdditionalData] = useState('');
   const [userInput, setUserInput] = useState({
@@ -427,6 +426,7 @@ function SetupPage() {
           const data = await response.text();
           setAddress(data);
           console.log(data);
+          
 
         } else {
           console.error('Nepodarilo sa získať dáta');
@@ -687,7 +687,9 @@ function SetupPage() {
       if (response.ok) {
         const jsonData = await response.json();
         console.log(jsonData);
+        console.log(additionalData)
         wrongSelector(jsonData);
+
 
         /*
         const isOnlySpecificKeysDefined = Object.keys(jsonData).every(key => {
@@ -831,6 +833,10 @@ function SetupPage() {
 
   return (
     <div className="App">
+       <div className="homepage">
+      </div>
+      <div className="mainIntroImage"> 
+      </div>
       <h1>{name}</h1>
       <p>Pokiaľ nie je bližšie špecifikované ako sa dáta majú ukladať, teda ľavá strana je prázdna, potom sa zobrazí náhľad článku na základe predpripravených RSS a Semantických dát.</p>
 
@@ -848,16 +854,12 @@ function SetupPage() {
 
       <h3>Scraper - nastavenie</h3>
 
-      <FormControlLabel
-        value="Use JavaScript"
-        control={<Switch color="primary" onChange={handleJavaScript} />}
-        label="RSS"
-        labelPlacement="top"
-      />
       <h2>{isActive}</h2>
       <div className="templates">
         <div className="templateButtons">
+          <Tooltip title="Predpripravená šablóna pre extrakciu dát len z RSS záznamu" placement="top">
           <button className={checked.onlyRSS ? ('active-button') : ('nonactive-button')} onClick={() => handleChange("onlyRSS")}>RSS</button>
+          </Tooltip>
           <button className={checked.onlySemantics ? ('active-button') : ('nonactive-button')} onClick={() => handleChange("onlySemantics")}>Semantické</button>
           <button className={checked.rssAndSemantics ? ('active-button') : ('nonactive-button')} onClick={() => handleChange("rssAndSemantics")}>RSS & Semantické</button>
         </div>
@@ -865,11 +867,18 @@ function SetupPage() {
           <button className={showDataAsArticle ? ('nonactive-button') : ('active-button')} onClick={() => handleTextAsArticle(false)}>Zobraziť dáta</button>
           <button className={showDataAsArticle ? ('active-button') : ('nonactive-button')} onClick={() => handleTextAsArticle(true)}>Zobraziť ako článok</button>
         </div>
+       
+        <FormControlLabel
+              value="Use JavaScript"
+              control={<Switch color="primary" onChange={handleJavaScript} />}
+              label="JavaScript"
+              labelPlacement="start"
+            />
       </div>
       <div className="clearfix">
         <div className="textfield">
           <div className="isrunningscraper">
-            <p>messages</p>
+            <p>{isActive}</p>
           </div>
           {err.title ? (<TextField error label="Povinné" value={userInput.title.source} id="title" sx={{ m: 1, width: 'auto' }} onChange={(event) => {
             handleUserInputChange(event, 'title');
@@ -923,7 +932,7 @@ function SetupPage() {
 
 
           <div className="isrunningscraper" style={{marginBottom: '0px'}}>
-            <p>messages</p>
+            <p>{isActive}</p>
           </div>
         </div>
         {loading === false ? (<>
@@ -1065,13 +1074,15 @@ function SetupPage() {
       </div>
      
       <div className='StartAndStop'>
-        <div>
+        <div style={{display: 'flex', alignItems: 'baseline', justifyContent: 'space-between'}}>
           <h1>Spustenie Scraper</h1>
+          <h3 style={{marginLeft: '20px'}}>{isActive}</h3>
         </div>
         <div className="oneTimeScraper">
           <h3>Spustiť scraper jednorázovo</h3>
           <button className='dropbtn' onClick={handleStartOnce}>Spustiť</button>
         </div>
+        <h2 style={{marginTop: '40px', marginBottom: '10px'}}>Spustiť scraper opakovane</h2>
         <CronScheduler scheduledCronValue={handleFrequency}/>
         <button onClick={handleStart}>Start</button>
         <button onClick={handleStop}>Stop</button>

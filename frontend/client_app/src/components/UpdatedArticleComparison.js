@@ -18,19 +18,24 @@ const OneArticleComparison = ({ currentArticle, articleVersions }) => {
   };
   
   const renderDiff = (text1, text2) => {
-    if (text1 === undefined && text2 === undefined) {
-      return null; // Ak sú oba texty undefined, nezobrazujeme žiadne rozdiely
-    }
-  
-    const differences = diffWords(text1 || '', text2 || ''); // Vynecháme undefined hodnoty a použijeme prázdne reťazce
+    try{
+      if (text1 === undefined && text2 === undefined) {
+        return null; // Ak sú oba texty undefined, nezobrazujeme žiadne rozdiely
+      }
     
-    return differences.map((part, index) => {
-      const style = part.added 
-        ? { backgroundColor: 'lightgreen' } 
-        : part.removed ? { backgroundColor: 'lightpink' } 
-        : null;
-      return <span key={index} style={style}>{part.value}</span>;
-    });
+      const differences = diffWords(text1 || '', text2 || ''); // Vynecháme undefined hodnoty a použijeme prázdne reťazce
+      
+      return differences.map((part, index) => {
+        const style = part.added 
+          ? { backgroundColor: 'lightgreen' } 
+          : part.removed ? { backgroundColor: 'lightpink' } 
+          : null;
+        return <span key={index} style={style}>{part.value}</span>;
+      });
+    }
+    catch(error){
+      console.log(error);
+    }
   };
   
 

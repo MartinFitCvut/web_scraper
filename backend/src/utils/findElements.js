@@ -63,6 +63,7 @@ async function findElements(url, selector, loadHTML) {
                 .split('\n') // rozdeliť text na riadky
                 .map(line => line.trim()) // odstrániť medzery na začiatku a na konci každého riadku
                 .filter(Boolean) // odstrániť prázdné riadky
+                
                  
         }
 

@@ -5,7 +5,7 @@ function Footer(){
 
     return(
         <div className="footer">
-            Footer
+            ©️ Martin Thern
         </div>
     );
 

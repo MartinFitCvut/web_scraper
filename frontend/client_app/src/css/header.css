@@ -1,15 +1,15 @@
 .header{
-    background-color: #89CFF0;
+    background-color: #99ccff;
     width: 100%;
-    height: 60px;
-    box-shadow: 10px 0px 10px gray;
-
-  
+    height: 60px; 
 }
 
 .menu{
     display: flex;
     justify-content: space-between;
+    width: 90%;
+    margin: auto;
+    
 }
 
 .homeButtonIcon{
@@ -22,14 +22,14 @@
 }
 
 .homeIcon{
-    width: 30px;
+    width: 45px;
     height: fit-content;
     transition: 300ms;
    
     
 }
 .homeIcon:hover{
-    width: 35px;
+    width: 50px;
     transition: 300ms;  
     
 }

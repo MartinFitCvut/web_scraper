@@ -41,11 +41,17 @@ function SourcesBox() {
   };
 
   return (
-    <div>
-      {data.map((item, index) => (
-        <DataComponent key={index} data={item} handleDelete={handleDelete} />
-      ))}
-    
+    <div className="yourSources"> 
+      <div style={{textAlign: 'left'}}>
+        <h1>Vaše zdroje</h1>
+        <p>Vaše uložené zdroje, ktoré zobrazujú v akom stave scraper je</p>
+        <p>Cez tieto zdroje sa dostaneme do nastavení scrapera</p>
+      </div>
+      <div style={{marginTop: '50px'}}>
+        {data.map((item, index) => (
+          <DataComponent key={index} data={item} handleDelete={handleDelete} />
+        ))}
+      </div>
     </div>
   );
 };
@@ -55,7 +61,6 @@ function DataComponent({ data, handleDelete }) {
     <div>
       <div className={`sourcesBox ${data.enabled === 'run' ? ('active') : data.enabled === 'wait' ? ('wait') : ('')}`}>
         <div className="sourcesBoxButton">
-          {/* Použitie komponentu Link pre presmerovanie */}
           <Link to={`/setActive/${data.name}`} className={data.enabled === 'run' ? 'active-text' : ''}>
             <TuneIcon color="default" fontSize="large"/>
           </Link>

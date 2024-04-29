@@ -1,0 +1,44 @@
+.newSource{
+    display: flex;
+    width: 70%;
+    margin: auto;
+    margin-bottom: 80px;
+    height: 300px;
+    align-items: center;
+    justify-content: space-evenly;
+    
+}
+
+.css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input{
+    background: white;
+}
+
+.newSourceBox{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    height:max-content;
+    background: rgb(255, 255, 255);
+    border-radius: 10px;
+    width: 50%;
+    margin-top: 50px;
+}
+
+.supportText{
+    text-align: left;
+    width: 50%;
+}
+
+.supportText h1{
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 50px;
+    font-weight: 900;
+    font-style: normal;
+}
+
+.supportText p{
+    font-size: large;
+}
+
+

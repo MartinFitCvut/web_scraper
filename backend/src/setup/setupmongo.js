@@ -1,4 +1,6 @@
 const { MongoClient } = require('mongodb');
+const dotenv = require('dotenv');
+dotenv.config();
 
 async function createMongoDatabase(){
     const client = new MongoClient(process.env.DATABASE);
