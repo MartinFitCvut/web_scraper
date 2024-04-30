@@ -23,14 +23,14 @@
 .sort_and_volume{
     display: flex;
     justify-content: end;
-    align-items: end;
+    align-items: baseline;
     margin: 0px;
     margin-right: 2%;
     margin-left: 2%;
 }
 .sort_and_volume p{
-    padding-left: 2%;
-    padding-right: 2%;
+    padding-left: 3%;
+    padding-right: 1%;
     margin: 0px;
 }
 
@@ -255,6 +255,15 @@
   width: 90%;
   margin: auto;
 }
+
+.titleSearch{
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+  font-size: 80px;
+  margin-left: 25px;
+}
+
 
 @media only screen and (max-width: 1000px) {
   .articleLinkAndImage{

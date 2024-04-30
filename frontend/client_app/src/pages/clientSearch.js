@@ -35,6 +35,8 @@ function ClientSearch() {
 
   const [articles, setArticles] = useState(null);
 
+  const [newArt, setNewArt] = useState(null);
+
   const [startIndex, setStartIndex] = useState(() => {
     const storedIndex = localStorage.getItem('startIndex');
     setTimeout(() => {
@@ -196,6 +198,7 @@ function ClientSearch() {
       if (response.ok) {
         const data = await response.json();
         setArticles(data);
+        setNewArt(null);
         localStorage.setItem('articles', JSON.stringify(data));
         setTimeout(() => {
           localStorage.removeItem('articles');
@@ -217,6 +220,7 @@ function ClientSearch() {
       });
       setArticles(sortedArticles); // Update the state with sorted articles
       localStorage.setItem('articles', JSON.stringify(sortedArticles));
+      console.log(newArt);
       setTimeout(() => {
         localStorage.removeItem('articles');
       }, 300000)
@@ -248,13 +252,13 @@ function ClientSearch() {
 
   return (
     <div>
-      <h1> Client Search </h1>
+      <h1 className="titleSearch">Vyhľadajte extrahované záznamy</h1>
 
       <nav className="sort_and_volume">
-
-        <button className="dropbtn" onClick={() => handleSort(-1)}>Sort Newest</button>
-        <button className="dropbtn" onClick={() => handleSort(1)}>Sort Oldest</button>
-        {articles !== null ? (<p>Počet záznamov: {articles.length}</p>) : (<p>Num of results: 0</p>)}
+        <h3 style={{margin: '0px', marginRight: '20px'}}>Zoradiť</h3>
+        <button className="dropbtn" style={{marginRight: '20px', background: newArt === 'new' ? '#99ccff' : ''}} onClick={() => { handleSort(-1); setNewArt('new') }}>Najnovšie</button>
+        <button className="dropbtn" style={{background: newArt === 'old' ? '#99ccff' : ''}} onClick={() => { handleSort(1); setNewArt('old') }}>Najstaršie</button>
+        {articles !== null ? (<p>Počet záznamov {articles.length}</p>) : (<p>Num of results: 0</p>)}
         <div className="dropdown">
           <button className="dropbtn"> Stiahnuť </button>
           <div className="dropdown-content">

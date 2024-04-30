@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import LastRuns from "./lastruns";
 import CronScheduler from "../components/cronsetup/cronscheduler";
 import Tooltip from '@mui/material/Tooltip';
+import '../css/setuppage.css';
 
 //import SSEComponent from '../components/currentRuns';
 
@@ -28,6 +29,7 @@ function SetupPage() {
   const [activeNow, setActiveNow] = useState(null);
   const [rssData, setRssData] = useState('');
   const [semanticsData, setSemanticsData] = useState('');
+  const [delay, setDelay] = useState(0);
   const [checked, setChecked] = useState({
     onlyRSS: false,
     onlySemantics: false,
@@ -55,6 +57,12 @@ function SetupPage() {
   const [useJavaScript, setUseJavaScript] = useState(false);
 
   let timeout;
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+    });
+  };
 
   const [err, setErr] = useState({
     title: false,
@@ -495,7 +503,13 @@ function SetupPage() {
         });
         if (response.ok) {
           const jData = await response.json();
-          setResponceData(jData);
+          if(jData){
+            setResponceData('Scraper úspešne extrahoval dáta');
+          }
+          else{
+            setResponceData('Scraper skončil s chybou');
+          }
+          
         } else {
           console.error('Nepodarilo sa spustiť proces');
         }
@@ -720,6 +734,7 @@ function SetupPage() {
     }
   };
 
+
   useEffect(() => {
     setLoading(true);
     const fetchData = async () => {
@@ -749,6 +764,9 @@ function SetupPage() {
           }
           else if (enable === 'wait') {
             setIsActive('Scraper je v stave čakania');
+          }
+          else if (enable === 'error') {
+            setIsActive('Scraper skončil s chybou');
           }
           else {
             setIsActive('Scraper je zastavený');
@@ -790,6 +808,7 @@ function SetupPage() {
             // Set additionalData state
             //setAdditionalData(additionalDataStr);
             handleTextArea({ target: { value: additionalDataStr } });
+            window.scrollTo(0, 0);
 
             /*
             const additionalDataObj = {};
@@ -837,24 +856,19 @@ function SetupPage() {
       </div>
       <div className="mainIntroImage"> 
       </div>
-      <h1>{name}</h1>
-      <p>Pokiaľ nie je bližšie špecifikované ako sa dáta majú ukladať, teda ľavá strana je prázdna, potom sa zobrazí náhľad článku na základe predpripravených RSS a Semantických dát.</p>
-
-      <h4>Web scraper obsahuje 5 povinných prvkov.</h4>
-      <ul className="scraperInfo">
-        <li><b>Title:</b> možné konfigurovať</li>
-        <li><b>Link:</b> možné konfigurovať</li>
-        <li><b>Description:</b> možné konfigurovať</li>
-        <li><b>PubDate:</b> fixne dané - nedá sa zmeniť ani odstrániť</li>
-        <li><b>Guid:</b> fixne dané - nedá sa zmeniť ani odstrániť</li>
-      </ul>
-      <p>Ak potrebujete poradiť s napísaním selektoru pre určité časti vložte text alebo príslušnú triedu do vyhľadávania</p>
-
-      <p>Prednastavené vyhľadávanie pomocou RSS, Sémantických dát (OpenGraph), alebo ich kombinácia.</p>
-
-      <h3>Scraper - nastavenie</h3>
-
-      <h2>{isActive}</h2>
+      <div className="sourceSetup">
+        <h1>Aktuálny zdroj: <b>{name}</b></h1>
+      </div>
+      <div className="scraperDes">
+        <h2 className="scraperDesH2" style={{width: '26%'}}>Vyberte si z predpripravených šablón alebo si definujte vlastné nastavenia</h2>
+        <h2 className="scraperDesH2" style={{width: '58%', fontSize: '40px'}}>Nazrite ako vyzerajú Vaše nastavenia</h2>
+        <h2 className="scraperDesH2" style={{width: '10%'}}>Prezrite si rôzne náhľady</h2>
+      </div>
+      <div style={{display: 'flex'}}>
+        <div className='descScrape' style={{width: '29.9%'}}><h1>Nastavenie scrapera</h1><h3>Preddefinované šablóny alebo samostatná konfigurácia</h3></div>
+        <div className='descScrape' style={{width: '58.8%'}}><h1>Náhľad nad extrahované dáta</h1><h3>Ako vyzerá článok podľa Vašich nastavení</h3></div>
+        <div className='descScrape' style={{width: '11.8%', borderBottom: '1px solid grey'}}><h1>Vyber si náhľad</h1></div>
+      </div>
       <div className="templates">
         <div className="templateButtons">
           <Tooltip title="Predpripravená šablóna pre extrakciu dát len z RSS záznamu" placement="top">
@@ -864,16 +878,19 @@ function SetupPage() {
           <button className={checked.rssAndSemantics ? ('active-button') : ('nonactive-button')} onClick={() => handleChange("rssAndSemantics")}>RSS & Semantické</button>
         </div>
         <div className="templateButtons">
+          <h2 style={{marginLeft: '20px'}}>Zobraiť ako: </h2>
           <button className={showDataAsArticle ? ('nonactive-button') : ('active-button')} onClick={() => handleTextAsArticle(false)}>Zobraziť dáta</button>
           <button className={showDataAsArticle ? ('active-button') : ('nonactive-button')} onClick={() => handleTextAsArticle(true)}>Zobraziť ako článok</button>
         </div>
-       
-        <FormControlLabel
-              value="Use JavaScript"
-              control={<Switch color="primary" onChange={handleJavaScript} />}
-              label="JavaScript"
-              labelPlacement="start"
-            />
+        <div style={{display: 'flex', alignItems: 'center', marginLeft: '10px'}}>
+          <h2>Použiť JavaScript</h2>
+          <FormControlLabel
+                value="Use JavaScript"
+                control={<Switch color="primary" onChange={handleJavaScript} />}
+                labelPlacement="start"
+                
+              />
+        </div>
       </div>
       <div className="clearfix">
         <div className="textfield">
@@ -1074,21 +1091,34 @@ function SetupPage() {
       </div>
      
       <div className='StartAndStop'>
+        <h1>Spustenie Scraper</h1>
         <div style={{display: 'flex', alignItems: 'baseline', justifyContent: 'space-between'}}>
-          <h1>Spustenie Scraper</h1>
           <h3 style={{marginLeft: '20px'}}>{isActive}</h3>
+          <p>{responseData}</p>
         </div>
         <div className="oneTimeScraper">
           <h3>Spustiť scraper jednorázovo</h3>
           <button className='dropbtn' onClick={handleStartOnce}>Spustiť</button>
         </div>
+        <div style={{display: 'flex', marginTop: '20px', alignItems: 'center', justifyContent:'end'}}>
+          <h3>Nastaviť oneskorenie</h3>
+          <input type="number" style={{height: '25px', marginLeft:'20px'}}></input>
+          <Tooltip title="Nataviť oneskorenie znamená " placement="top">
+            <p style={{fontSize: '20px', marginLeft: '10px', cursor:'pointer'}}>🛈</p>
+          </Tooltip>
+          
+        </div>
         <h2 style={{marginTop: '40px', marginBottom: '10px'}}>Spustiť scraper opakovane</h2>
+        
         <CronScheduler scheduledCronValue={handleFrequency}/>
-        <button onClick={handleStart}>Start</button>
-        <button onClick={handleStop}>Stop</button>
-        <p>{responseData}</p>
-        <p>{messages}</p>
+        
+        <div className="startscraper">
+          <button className="dropbtn" onClick={handleStart}>Spustiť</button>
+          <button className="dropbtn" onClick={handleStop}>Zastaviť</button>
+        </div>
+       
       </div>
+      <h1 className="runsofscraper">Zobraze si posledné behy scrapera</h1>
       <LastRuns name={name} />
      
 

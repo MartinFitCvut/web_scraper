@@ -182,12 +182,15 @@ exports.getEvents = async(req, res) => {
     global.eventEmitter.on(`${scraperId}-scraperRunning`, () => listener('run'));
     global.eventEmitter.on(`${scraperId}-scraperCompleted`, () => listener('wait'));
     global.eventEmitter.on(`${scraperId}-scraperStopped`, () => listener('stop'));
+    global.eventEmitter.on(`${scraperId}-scraperError`, () => listener('error'));
+
   
     // Remove listeners when the client disconnects
     req.on('close', () => {
         global.eventEmitter.removeListener(`${scraperId}-scraperRunning`, listener);
         global.eventEmitter.removeListener(`${scraperId}-scraperCompleted`, listener);
         global.eventEmitter.removeListener(`${scraperId}-scraperStopped`, listener);
+        global.eventEmitter.removeListener(`${scraperId}-scraperError`, listener);
     });
 }
 
@@ -301,6 +304,7 @@ exports.setScraperRunning = async(req, res) => {
         const address = await getAddress(sourceName);
         const usejs = receivedData.usejs;
         const frequency = receivedData.frequency;
+        const isActive = receivedData.activeNow;
         //const frequencyHour = receivedData.frequencyHour;
 
         if (receivedData.start !== undefined && receivedData.start !== null) { // ked príde od používateľa Start value
@@ -329,12 +333,33 @@ exports.setScraperRunning = async(req, res) => {
                         res.json('Please enter mandatory parts');
                     }
                     if(receivedData.frequency === 0){
-                        await setScraperActive(address, usejs);
-                        await updateSourceData(sourceName, 'stop');
-                        //await updateFrequencyData(sourceName, 0, parseInt(0));
-                        await updateFrequencyData(sourceName, 0);
-                        emitScraperEvent(sourceName, 'scraperStopped');
-                        res.json('started');
+                        try{
+                            let scraperEnd;
+                            try{
+                                scraperEnd = await setScraperActive(address, usejs, isActive);
+                                console.log('Scraper skoncil ',scraperEnd);
+                            }
+                            catch(error){
+                                console.log('hodí mi error dokonca aj tu');
+                            }
+                            
+                            await updateSourceData(sourceName, 'stop');
+                            //await updateFrequencyData(sourceName, 0, parseInt(0));
+                            await updateFrequencyData(sourceName, 0);
+                            if(scraperEnd){
+                                emitScraperEvent(sourceName, 'scraperStopped');
+                                res.json(true)
+                            }
+                            else{
+                                emitScraperEvent(sourceName, 'scraperError');
+                                res.json(false);
+                            }
+                        }
+                        catch(error){
+                            console.log('hodí mi error aj tu');
+                        }
+                        
+                        
                     }
                     else /*if(receivedData.frequency || frequencyHour)*/{
                         //const frekvencia = parseInt(receivedData.frequency);
@@ -343,7 +368,7 @@ exports.setScraperRunning = async(req, res) => {
                         //await updateFrequencyData(sourceName, frekvencia, parseInt(frequencyHour)); //zmena frekvencie 
                         await updateFrequencyData(sourceName, frequency); //zmena frekvencie 
                         //await startAndStopScraper(sourceName, frekvencia, parseInt(frequencyHour),address, true, usejs); // spusť scraper
-                        await startAndStopScraper(sourceName, frequency, address, true, usejs); // spusť scraper  
+                        await startAndStopScraper(sourceName, frequency, address, true, usejs, isActive); // spusť scraper  
                         res.json('started');
 
                     }

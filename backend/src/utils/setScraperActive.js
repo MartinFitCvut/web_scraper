@@ -70,7 +70,7 @@ function compareRecords(newData, record) {
 }
 
 
-async function setScraperActive(address, usejs) {
+async function setScraperActive(address, usejs, isActive) {
     try{
         const data = await parseString(address); //Získa RSS dáta, všetky záznami
         const collection = await connectSource(process.env.CURRENT);//Prístup ku aktuálne uloženým článkom 
@@ -110,123 +110,138 @@ async function setScraperActive(address, usejs) {
             const mainItem = template; //Získané RSS dáta pre daný záznam              
             global.scrapersInFunction[name] = true;  //označenie že scraper začal pracovať
             const linkTo = mainItem.link;
-            const pageMetadata = await analyzePage(linkTo); //Získa Sémantické dáta ak to je možné  
-            let dataHTML;
-            if(usejs){  
-                dataHTML = await getPageContent(linkTo);
+            let pageMetadata;
+            if(isActive !== 'onlyRSS'){
+                pageMetadata = await analyzePage(linkTo); //Získa Sémantické dáta ak to je možné  
+                let dataHTML;
+                if(usejs){  
+                    dataHTML = await getPageContent(linkTo);
+                }
+                else{
+                    try{
+                        const response = await axios.get(linkTo, {
+                            headers: {
+                                'User-Agent': 'Master-thesis'
+                            }
+                        });
+                        dataHTML = response.data;
+                        console.log('Status kód odpovede:', response.status);
+                    }
+                    catch(error){
+                        console.log('Status kód odpovede:', error.status);
+                        console.log('Problém s axios a posielaním požiadaviek');
+                    }
+                }
             }
-            else{
+            
+            let newData = {};
+            for(key in scraperConfig){  //Prechod cez konfiguračný súbor - priradenie jednotlivých dát
                 try{
-                    const response = await axios.get(linkTo, {
-                        headers: {
-                            'User-Agent': 'Master-thesis'
+                    if(key === "sourceID"){
+                        newData[key] = scraperConfig[key];
+                    }
+                    if(key === "guid"){
+                        if(!mainItem.hasOwnProperty('guid')){
+                            console.log('No guid');
+                            newData[key] = mainItem['link'];
                         }
-                    });
-                    dataHTML = response.data;
+                        else{
+                            newData[key] = mainItem[key];
+                        }
+                    }
+        
+                    const keyValue = scraperConfig[key];
+                    if(keyValue.source === 'RSS' && key !== 'guid'){
+                        if(mainItem.hasOwnProperty(key)){
+                            if(key === 'pubdate'){
+                                const newDate = new Date(mainItem[key]);  
+                                console.log(new Date(newDate.toISOString()));
+                                newData[key] = newDate;
+                            }
+                            else{
+                                const StoredData = mainItem[key];
+                                const testData = StoredData.replace(/<[^>]+>/g, '').trim();
+                                newData[key] = testData;
+                            }
+                        }
+                        
+                    }
+                    
+                    else if(keyValue.source === 'Semantics'){
+                        if(key === 'link'){
+                            newData[key] = pageMetadata['url'];
+                        }
+                        if(pageMetadata.hasOwnProperty(key) && key !=='link'){
+                            const StoredData = pageMetadata[key];
+                            const testData = StoredData.replace(/<[^>]+>/g, '').trim();
+                            newData[key] = testData; 
+                        }
+                    
+                    }
+                    
+                    else if(keyValue.source !== 'RSS' && keyValue.source !== 'Semantics' && keyValue !== '' && key !== 'sourceID'){
+                        console.log(keyValue.source);
+                        let findElementValue = await findElements(linkTo, keyValue.source, dataHTML); 
+                        newData[key] = findElementValue;
+                    }
                 }
                 catch(error){
                     console.log(error);
                 }
             }
-            let newData = {};
-            for(key in scraperConfig){  //Prechod cez konfiguračný súbor - priradenie jednotlivých dát
-                //console.log('Prechádzam na klúče')
-                //console.log(key);
-                if(key === "sourceID"){
-                    newData[key] = scraperConfig[key];
-                }
-                if(key === "guid"){
-                    if(!mainItem.hasOwnProperty('guid')){
-                        console.log('No guid');
-                        newData[key] = mainItem['link'];
-                    }
-                    else{
-                        newData[key] = mainItem[key];
-                    }
-                }
-    
-                const keyValue = scraperConfig[key];
-                if(keyValue.source === 'RSS' && key !== 'guid'){
-                    if(mainItem.hasOwnProperty(key)){
-                        if(key === 'pubdate'){
-                            const newDate = new Date(mainItem[key]);  
-                            console.log(new Date(newDate.toISOString()));
-                            newData[key] = newDate;
-                        }
-                        else{
-                            const StoredData = mainItem[key];
-                            const testData = StoredData.replace(/<[^>]+>/g, '').trim();
-                            newData[key] = testData;
-                        }
-                    }
-                    
-                }
-                
-                else if(keyValue.source === 'Semantics'){
-                    if(key === 'link'){
-                        newData[key] = pageMetadata['url'];
-                    }
-                    if(pageMetadata.hasOwnProperty(key) && key !=='link'){
-                        const StoredData = pageMetadata[key];
-                        const testData = StoredData.replace(/<[^>]+>/g, '').trim();
-                        newData[key] = testData; 
-                    }
-                   
-                }
-                
-                else if(keyValue.source !== 'RSS' && keyValue.source !== 'Semantics' && keyValue !== '' && key !== 'sourceID'){
-                    console.log(keyValue.source);
-                    let findElementValue = await findElements(linkTo, keyValue.source, dataHTML); 
-                    newData[key] = findElementValue;
-                }
             
-            }
             // Teraz máme vytvorý záznam pre potenciálny článok
             //console.log(newData);
             const guid = newData.guid;
             const record = await collection.findOne({ guid: guid }); //Zistí či už záznam existuje v databáze 
             //console.log(record);
-            if(record !== null){ //Double kontrola - či ak kontorlujeme jeden voči druhému tak či sú dáta rovnaké alebo nie    
-                const differenceNewData = compareRecords(newData, record);
-                const differenceRecord = compareRecords(record, JSON.parse(JSON.stringify(newData)));
-                //console.log(differenceNewData, differenceRecord);
-                if(differenceRecord.length !== 0 || differenceNewData.length !== 0){
-                    
-                    await collection.deleteOne(record); //Vymaže z Current Article kolekcie tento záznam 
-                    console.log("Deleted one from current database");
-                    upadatedDataInRun.push(newData.guid);
-                    await collection.insertOne(newData);
+            try{
+                if(record !== null){ //Double kontrola - či ak kontorlujeme jeden voči druhému tak či sú dáta rovnaké alebo nie    
+                    const differenceNewData = compareRecords(newData, record);
+                    const differenceRecord = compareRecords(record, JSON.parse(JSON.stringify(newData)));
+                    //console.log(differenceNewData, differenceRecord);
+                    if(differenceRecord.length !== 0 || differenceNewData.length !== 0){
+                        
+                        await collection.deleteOne(record); //Vymaže z Current Article kolekcie tento záznam 
+                        console.log("Deleted one from current database");
+                        upadatedDataInRun.push(newData.guid);
+                        await collection.insertOne(newData);
 
-                    const versionsCollection = await connectSource(process.env.VERSIONS); //prístup do kolekcie verzie v databáze
-                    record['exec_date'] = actualDate;
-                    try{
-                        await versionsCollection.insertOne(record); // Vloží aktuálne uležený záznam 
-                    }
-                    catch(error){
-                        console.log(error)
-                    }
-                    //console.log('Vložil sa nový záznam');
-                    console.log('Difference newData:');
-                    differenceNewData.forEach((difference, index) => {
-                        console.log(`Difference ${index + 1}:`, difference);
-                    });
+                        const versionsCollection = await connectSource(process.env.VERSIONS); //prístup do kolekcie verzie v databáze
+                        record['exec_date'] = actualDate;
+                        try{
+                            await versionsCollection.insertOne(record); // Vloží aktuálne uležený záznam 
+                        }
+                        catch(error){
+                            console.log(error)
+                        }
+                        //console.log('Vložil sa nový záznam');
+                        console.log('Difference newData:');
+                        differenceNewData.forEach((difference, index) => {
+                            console.log(`Difference ${index + 1}:`, difference);
+                        });
 
-                    // Vypíšte differences z record
-                    console.log('Difference record:');
-                    differenceRecord.forEach((difference, index) => {
-                        console.log(`Difference ${index + 1}:`, difference);
-                    });
-                    console.log("New version added " + record.guid);
+                        // Vypíšte differences z record
+                        console.log('Difference record:');
+                        differenceRecord.forEach((difference, index) => {
+                            console.log(`Difference ${index + 1}:`, difference);
+                        });
+                        console.log("New version added " + record.guid);
+                        
+                    }
+                    else{
+                        console.log(record.guid + " Už tam je ten istý záznam takže nepridávam nič")
+                    } 
                     
                 }
                 else{
-                    console.log(record.guid + " Už tam je ten istý záznam takže nepridávam nič")
-                } 
+                    newDataInRun.push(newData.guid);
+                    await collection.insertOne(newData); //Záznam sa nenachádza - vkladám článok do databázy
+                    console.log("New data added");
+                }
             }
-            else{
-                newDataInRun.push(newData.guid);
-                await collection.insertOne(newData); //Záznam sa nenachádza - vkladám článok do databázy
-                console.log("New data added");
+            catch(error){
+                console.log(error);
             }
         };
         //let scrapersInFunction = getCache('scrapersInFunction');
@@ -248,9 +263,13 @@ async function setScraperActive(address, usejs) {
         };
         console.log(runsData);
         await runscollection.insertOne(runsData);
+        return true;
     }
     catch (error) {
-
+        const name = await findNameByUrl(address);
+        emitScraperEvent(name, 'scraperError');
+        console.log('Problém s vykonaním funkcie');
+        return false;
     }
 }
 

@@ -315,24 +315,15 @@ textarea {
 .active-menu-button{
   border: 4px solid;
   color: white;
-  text-shadow: 1px 1px black;
-  border-top-color: darkgreen;
-  border-left-color: darkgreen;
-  border-bottom-color: rgb(0, 81, 0);
-  border-right-color: rgb(0, 81, 0);
-  background-color: green;
-  
+  border-color: darkblue;
+  background-color: 	#3366ff;
 }
 .nonactive-menu-button{
   color: black;
-  text-shadow: 1px 1px rgb(195, 220, 232);
+  
   box-shadow: 3px 3px 3px grey;
-  border: 3px solid; 
-  border-top-color: rgb(100, 191, 233);
-  border-left-color: rgb(100, 191, 233);
-  border-bottom-color: rgb(49, 173, 231);
-  border-right-color: rgb(49, 173, 231);
-  background-color: #89CFF0;    
+  border: none;
+  background-color: #bbeeff;    
 }
 
 .chooseFrom button:hover{
@@ -342,21 +333,23 @@ textarea {
 
 .templates{
   display: flex;
+  align-items: center;
+  height: 60px;
 }
 
 .templateButtons{
   display: flex;
   width: 30%;
+  align-items: center;
 }
 
 
 .templateButtons button{
   cursor: pointer;
   margin-left: 12px;
-  margin-bottom: 10px;
   width: fit-content;
   padding: 5px;
-  border-radius: 10px;
+  border-radius: 3px;
   font-size: medium;
   font-family: "Roboto", sans-serif;
   transition: 300ms;
@@ -370,25 +363,22 @@ textarea {
 
 .active-button{
   color: white;
-  text-shadow: 1px 1px black;
   box-shadow: 3px 3px 3px rgb(0, 0, 0);
   border: 3px solid; 
-  border-top-color: darkgreen;
-  border-left-color: darkgreen;
-  border-bottom-color: rgb(0, 81, 0);
-  border-right-color: rgb(0, 81, 0);
-  background-color: green;
+  border-color: darkblue;
+  background-color: 	#3366ff;
 }
+
+.active-button:hover{
+  box-shadow: 6px 6px 10px darkgrey;
+}
+
 .nonactive-button{
   color: black;
   text-shadow: 1px 1px rgb(195, 220, 232);
   box-shadow: 3px 3px 3px grey;
-  border: 3px solid; 
-  border-top-color: rgb(100, 191, 233);
-  border-left-color: rgb(100, 191, 233);
-  border-bottom-color: rgb(49, 173, 231);
-  border-right-color: rgb(49, 173, 231);
-  background-color: #89CFF0;    
+  background-color: #bbeeff;   
+  border: none; 
 }
 
 .nonactive-button:hover{
@@ -474,6 +464,55 @@ textarea {
   .isrunningscraper p{
     color: grey;
   }
+
+.scraperDes{
+  display: flex;
+  width: 100%;
+  margin: auto;
+  margin-top: 50px;
+}
+
+.scraperDesH2{
+  margin-left: 20px;
+  margin-right: 20px;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+  font-size: 30px;
+}
+
+.descScrape{
+  position: relative;
+  z-index: -1;
+  top: 70px;
+  height: 300pX;
+  background: white;
+  border-top: 1px solid grey;
+  border-right: 1px solid grey;
+}
+
+.startscraper{
+  display: flex;
+  width: 50%;
+  margin: auto;
+  justify-content: center;
+}
+
+
+.startscraper button{ 
+  margin-left: 10px;
+  margin-right: 10px;
+  width: 100px;
+  margin-bottom: 50px;
+}
+
+.runsofscraper{
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+  font-size: 50px;
+
+}
 
   @keyframes rotation {
   0% {

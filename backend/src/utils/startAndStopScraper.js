@@ -14,7 +14,7 @@ function emitScraperEvent(scraperId, event) {
     global.eventEmitter.emit(`${scraperId}-${event}`, { scraperId, status: event });
 }
 //async function startAndStopScraper(sourceName, frequency, frequencyHour, address, startOrStop, usejs) {
-async function startAndStopScraper(sourceName, frequency, address, startOrStop, usejs) {
+async function startAndStopScraper(sourceName, frequency, address, startOrStop, usejs, isActive) {
     // Inicializácia premennej scrapersInFunction, ak nie je definovaná
     //scrapersInFunction[sourceName] = scrapersInFunction[sourceName] || false;
     //const eventEmitter = getCache('events');
@@ -51,11 +51,11 @@ async function startAndStopScraper(sourceName, frequency, address, startOrStop, 
                 } else {
                     global.runningScrapers[sourceName].stop(); //Zastavenie scrapera pre novú inicializáciu
 
-                    await setScraperActive(address, usejs);
+                    await setScraperActive(address, usejs, isActive);
                     const taskId = cron.schedule(`${frequency}`, async () => {  //Nastavenie časovača kedy sa scraper bude spúštať
                         console.log('Running upadated scraper for', sourceName);
                         try {
-                            await setScraperActive(address, usejs);  //Spustenie scrapera
+                            await setScraperActive(address, usejs, isActive);  //Spustenie scrapera
                         } catch (error) {
                             console.error('Chyba pri spustení scraperu:', error);
                         }
@@ -67,11 +67,11 @@ async function startAndStopScraper(sourceName, frequency, address, startOrStop, 
                 }
             } else { // Ak scraper aktivovaný ešte nebol alebo je vypnutý 
                 // Ak pre daný zdroj už beží cron úloha, zrušíme ju a vytvoríme novú
-                    await setScraperActive(address, usejs);
+                    await setScraperActive(address, usejs, isActive);
                     const taskId = cron.schedule(`${frequency}`, async () => {  //spustenie scrapera 
                     console.log('Running new scraper for', sourceName);
                     try {
-                        await setScraperActive(address, usejs);
+                        await setScraperActive(address, usejs, isActive);
                     } catch (error) {
                         console.error('Chyba pri spustení scraperu:', error);
                     }
