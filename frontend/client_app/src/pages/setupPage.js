@@ -26,7 +26,7 @@ function SetupPage() {
   const [responseData, setResponceData] = useState('');
   const [isActive, setIsActive] = useState('');
   const [frequency, setFrequency] = useState('');
-  const [activeNow, setActiveNow] = useState(null);
+  const [activeNow, setActiveNow] = useState('noData');
   const [rssData, setRssData] = useState('');
   const [semanticsData, setSemanticsData] = useState('');
   const [delay, setDelay] = useState(0);
