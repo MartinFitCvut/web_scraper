@@ -108,6 +108,17 @@ function SetupPage() {
 
   }
 
+  const checkbeforesend = () => {
+    if(activeNow === 'clientConfig' && ( mandatoryData.title.source.trim() === '' || mandatoryData.link.source.trim() === '' || mandatoryData.description.source.trim() === '')){
+      return false;
+    }
+    else if(activeNow === 'noData'){
+      return false;
+    }
+    else{
+      return true;
+    }
+  }
   /*
     const handleMandatoryArea = (event, name) => {
         const value = event.target.value.trim();
@@ -450,6 +461,11 @@ function SetupPage() {
   const handleFrequency = (freq) =>{
     console.log(freq);
     setFrequency(freq);
+  }
+  
+  const handleDelay = (event) =>{
+    const value = event.target.value
+    setDelay(value);
   } 
 
   /*
@@ -491,7 +507,8 @@ function SetupPage() {
   };
   */
   const handleStartOnce = async () => {
-    if (ableSend) {
+
+    if(checkbeforesend() && ableSend){
       setMessages('');
       try {
         const response = await fetch(`http://localhost:5000/api/setActive/${name}/setup`, {
@@ -499,7 +516,7 @@ function SetupPage() {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ start: true, frequency: 0, name: name, maindata: mandatoryData, additionaldata: additionalData, activeNow: activeNow, usejs: useJavaScript })
+          body: JSON.stringify({ start: true, frequency: 0, name: name, maindata: mandatoryData, additionaldata: additionalData, activeNow: activeNow, usejs: useJavaScript, delay: delay })
         });
         if (response.ok) {
           const jData = await response.json();
@@ -524,7 +541,7 @@ function SetupPage() {
   };
 
   const handleStart = async () => {
-    if (ableSend) {
+    if (checkbeforesend() && ableSend) {
       setMessages('');
       if(frequency !== ''){
         try {
@@ -533,7 +550,7 @@ function SetupPage() {
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ start: true, frequency: frequency, name: name, maindata: mandatoryData, additionaldata: additionalData, activeNow: activeNow, usejs: useJavaScript })
+            body: JSON.stringify({ start: true, frequency: frequency, name: name, maindata: mandatoryData, additionaldata: additionalData, activeNow: activeNow, usejs: useJavaScript, delay: delay })
           });
           if (response.ok) {
             const jData = await response.json();
@@ -1096,13 +1113,14 @@ function SetupPage() {
           <h3 style={{marginLeft: '20px'}}>{isActive}</h3>
           <p>{responseData}</p>
         </div>
+        {messages}
         <div className="oneTimeScraper">
           <h3>Spustiť scraper jednorázovo</h3>
           <button className='dropbtn' onClick={handleStartOnce}>Spustiť</button>
         </div>
         <div style={{display: 'flex', marginTop: '20px', alignItems: 'center', justifyContent:'end'}}>
           <h3>Nastaviť oneskorenie</h3>
-          <input type="number" style={{height: '25px', marginLeft:'20px'}}></input>
+          <input type="number" value={delay} style={{height: '25px', marginLeft:'20px'}} onChange={handleDelay}></input>
           <Tooltip title="Nataviť oneskorenie znamená " placement="top">
             <p style={{fontSize: '20px', marginLeft: '10px', cursor:'pointer'}}>🛈</p>
           </Tooltip>

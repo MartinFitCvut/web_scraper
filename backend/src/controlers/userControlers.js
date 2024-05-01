@@ -305,6 +305,7 @@ exports.setScraperRunning = async(req, res) => {
         const usejs = receivedData.usejs;
         const frequency = receivedData.frequency;
         const isActive = receivedData.activeNow;
+        const delay = receivedData.delay;
         //const frequencyHour = receivedData.frequencyHour;
 
         if (receivedData.start !== undefined && receivedData.start !== null) { // ked príde od používateľa Start value
@@ -336,7 +337,7 @@ exports.setScraperRunning = async(req, res) => {
                         try{
                             let scraperEnd;
                             try{
-                                scraperEnd = await setScraperActive(address, usejs, isActive);
+                                scraperEnd = await setScraperActive(address, usejs, isActive, delay);
                                 console.log('Scraper skoncil ',scraperEnd);
                             }
                             catch(error){
@@ -368,7 +369,7 @@ exports.setScraperRunning = async(req, res) => {
                         //await updateFrequencyData(sourceName, frekvencia, parseInt(frequencyHour)); //zmena frekvencie 
                         await updateFrequencyData(sourceName, frequency); //zmena frekvencie 
                         //await startAndStopScraper(sourceName, frekvencia, parseInt(frequencyHour),address, true, usejs); // spusť scraper
-                        await startAndStopScraper(sourceName, frequency, address, true, usejs, isActive); // spusť scraper  
+                        await startAndStopScraper(sourceName, frequency, address, true, usejs, isActive, delay); // spusť scraper  
                         res.json('started');
 
                     }

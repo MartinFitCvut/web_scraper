@@ -70,7 +70,7 @@ function compareRecords(newData, record) {
 }
 
 
-async function setScraperActive(address, usejs, isActive) {
+async function setScraperActive(address, usejs, isActive, delay) {
     try{
         const data = await parseString(address); //Získa RSS dáta, všetky záznami
         const collection = await connectSource(process.env.CURRENT);//Prístup ku aktuálne uloženým článkom 
@@ -88,6 +88,8 @@ async function setScraperActive(address, usejs, isActive) {
         await updateSourceData(name, 'run');
         for(const item of data) {  //Prechod cez všeztky RSS dáta
             //console.log('RSS Data');
+            const newDelay = delay * 1000;
+            await new Promise(resolve => setTimeout(resolve, newDelay));
             const nwdata = item;
             const template = {}
             mainStruct.forEach(key => {  //Definovanie RSS dát - čo všetko z dát má vytiahnuť
