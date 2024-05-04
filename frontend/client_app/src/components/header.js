@@ -3,9 +3,38 @@ import {Outlet} from "react-router-dom";
 import '../css/header.css'
 import logo from '../images/homeIcon.png'
 import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+
+import axios from "axios";
 function Header(){
+
+    const [sources, setSources] = useState([]);
+
+    const handleGetData = async() =>{
+        try {
+            const response = await axios.get(`http://localhost:5000/`,
+            {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+        
+            if (response.status == 200) {
+              const data = await response.data;
+              setSources(data);
+              console.log(data);
+            }
+          } catch (error) {
+            console.error("Error fetching data:", error);
+          }
+    }
+
+    useEffect(() => {
+        handleGetData();
+    },[]);
+
     return(
-        <>
+    
         <div className="header">
             
             <nav className="menu">
@@ -15,8 +44,19 @@ function Header(){
                     </Link>
                 </span> 
                 <div className="homeButtonText">
+                    <div className="dropdownheader">
+                        <button className="dropbtnheader">Vaše zdroje</button>
+                        <div className="dropdownheader-content">   
+                                {sources.map((source, index) => (
+                                        <a href={`/setActive/${source.name}`} key={index}>
+                                            <p>{source.name}</p>
+                                        </a>
+                                    
+                                ))}
+                        </div>
+                    </div> 
                     <span className="homeButtonTextElements">
-                        <Link to='/docs'style={{textDecoration: 'none', color: 'black'}} state={'search'}>Dokumentácia</Link>
+                        <Link to='/docs/general'style={{textDecoration: 'none', color: 'black'}} state={'search'}>Dokumentácia</Link>
                     </span>
                         
                     <span className="homeButtonTextElements">
@@ -24,11 +64,8 @@ function Header(){
                     </span>
                 </div>
             </nav>        
-        </div>
-        
-        <Outlet/>
-        </>
-        
+        </div>   
+             
     );
 }
 

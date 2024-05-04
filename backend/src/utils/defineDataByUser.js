@@ -2,6 +2,7 @@ const { getCache, setCache } = require('../utils/cache');
 const {findElements} = require('../utils/findElements');
 const {getFirstItem} = require('./getFirstRSSItem');
 const {analyzePage} = require('./analyzePage');
+const {getPageContent} = require('./puppeteerPage');
 
 async function definedDataByUser(address, name, data, usejs){
     try{
@@ -27,8 +28,15 @@ async function definedDataByUser(address, name, data, usejs){
         else{
             pageMetadata = getCache(`${name}_semantics`);
         }
-         
-        const loadHTML = getCache(`${name}_loadHTML`);
+        let loadHTML
+        if(!getCache(`${name}_loadHTML`)){
+            loadHTML = getPageContent(linkTo)
+            setCache(`${name}_loadHTML`, loadHTML);
+        }
+        else{
+            loadHTML = getCache(`${name}_loadHTML`);
+        }
+        
         for(key in data){ // Definovaná štruktúra od používateľa - teda jeho vytvorená šablóna na extrahovanie dát
             const keyValue = data[key];
             if(key === "sourceID"){

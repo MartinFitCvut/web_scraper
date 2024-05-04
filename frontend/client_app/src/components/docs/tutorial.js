@@ -1,7 +1,7 @@
 import React from "react";
-import source from "../../images/source.svg";
 
-function Tutorial({handleDocuments}) {
+
+function Tutorial() {
     return (
         <div>
             <h1 id="tutorial">Tutoriál - Ako na to</h1>

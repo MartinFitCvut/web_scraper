@@ -24,6 +24,13 @@ function HomePage() {
 
   const arrowClass = scrollY > 50 ? 'arrow hideArrow' : 'arrow';
   
+  const handleNextScroll = () => {
+    setScrollY(800);
+    window.scrollTo({
+      top: 800,
+      behavior: 'smooth'
+    })
+  } 
 
 
  return (
@@ -39,7 +46,7 @@ function HomePage() {
         </div>
         <img className="scraperimage" src={require('../images/pcscraper.png')} />
       </div>
-      <div className={arrowClass}>
+      <div className={arrowClass} onClick={handleNextScroll}>
         <p>Pokračovať</p>
         <p>🢃</p>
       </div>

@@ -42,7 +42,7 @@ function SourcesBox() {
 
   return (
     <div className="yourSources"> 
-      <div style={{textAlign: 'left'}}>
+      <div style={{textAlign: 'left', marginRight: '20px'}}>
         <h1>Vaše zdroje</h1>
         <p>Vaše uložené zdroje, ktoré zobrazujú v akom stave scraper je</p>
         <p>Cez tieto zdroje sa dostaneme do nastavení scrapera</p>
@@ -61,20 +61,31 @@ function DataComponent({ data, handleDelete }) {
     <div>
       <div className={`sourcesBox ${data.enabled === 'run' ? ('active') : data.enabled === 'wait' ? ('wait') : ('')}`}>
         <div className="sourcesBoxButton">
-          <Link to={`/setActive/${data.name}`} className={data.enabled === 'run' ? 'active-text' : ''}>
-            <TuneIcon color="default" fontSize="large"/>
-          </Link>
+          <Tooltip title={<p style={{fontSize: '14px'}}>Nastavenie zdroja. Tu si nastavíte ako scraper bude extrahovať dáta z článkov</p>} placement="top" arrow>
+            <Link to={`/setActive/${data.name}`} className={data.enabled === 'run' ? 'active-text' : ''}>
+              <TuneIcon color="default" fontSize="large"/>
+            </Link>
+          </Tooltip>
+          
         </div>
         <div className="sourcesBoxDiv">
-          <Tooltip className={data.enabled === 'run' ? 'active-text' : ''} title={data.url} placement="top" sx={{fontSize: '25px'}}>
+          <Tooltip className={data.enabled === 'run' ? 'active-text' : ''} title={<p style={{fontSize: '14px'}}>{data.url}</p>} placement="top" sx={{fontSize: '25px'}} arrow>
             <p className={data.enabled === 'run' ? 'active-text' : ''}>Zdroj: {data.name}</p>
           </Tooltip>
-          <p className={data.enabled === 'run' ? 'active-text' : ''}>Aktívny: {data.enabled === 'run' ? ('Áno') : data.enabled === 'stop' ? ('Nie') : data.enabled === 'wait' ? ('čaká') : (null)}</p>
-          <p className={data.enabled === 'run' ? 'active-text' : ''}>Frekvencia: {data.frequency}</p>
+          <Tooltip arrow placement="top" title={<p style={{fontSize: '14px'}}>Aktuálny stav v akom sa zdroj nachádza</p>}>
+            <p className={data.enabled === 'run' ? 'active-text' : ''}>Aktívny: {data.enabled === 'run' ? ('Áno') : data.enabled === 'stop' ? ('Nie') : data.enabled === 'wait' ? ('čaká') : (null)}</p>
+          </Tooltip>
+          <Tooltip arrow placement="top" title={<p style={{fontSize: '14px'}}>Nastavená frekvencia vo forme <b>cron</b>. Pre viac informácií kliknite sem</p>}>
+            <p className={data.enabled === 'run' ? 'active-text' : ''}>Frekvencia: {data.frequency}</p>
+          </Tooltip>
+          
         </div>
-        <IconButton aria-label="delete" size="large" onClick={() => handleDelete(data.name)}>
-            <DeleteIcon fontSize="inherit" />
-        </IconButton>
+        <Tooltip arrow placement="top" title={<p style={{fontSize: '14px'}}>Zmazanie zdroja</p>}>
+          <IconButton aria-label="delete" size="large" onClick={() => handleDelete(data.name)}>
+              <DeleteIcon fontSize="inherit" />
+          </IconButton>
+        </Tooltip>
+        
         
       </div>
       

@@ -30,7 +30,7 @@ function CronScheduler({scheduledCronValue}){
 
     const handleMinuteValue = (event) =>{
         const value = event.target.value;
-        if(value >= 5 && value <= 59){
+        if(value >= 2 && value <= 59){
             if(!ableSend){
                 setAbleSend(true);
             }

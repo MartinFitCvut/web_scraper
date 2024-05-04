@@ -281,8 +281,26 @@ exports.pageSetupComponent = async(req, res) => {
             }
         }
         else if(setup === 'onlyRSS' || setup === 'onlySemantics' || setup === 'rssAndSemantics'){ // predefinované šablóny
-            const firstRssData = getCache(`${name}_rss`);
-            const semanticsData = getCache(`${name}_semantics`);
+            let firstRssData;
+            let semanticsData;    
+
+            if(!getCache(`${name}_rss`)){
+                const rss = await getFirstItem(address); 
+                setCache(`${name}_rss`, rss, 300);   
+                firstRssData = rss;
+            }
+            else{
+                firstRssData = getCache(`${name}_rss`);
+            }
+            const linkTo = firstRssData.link;
+            if(!getCache(`${name}_semantics`)){
+                const seman = await analyzePage(linkTo);
+                setCache(`${name}_semantics`, seman, 300);
+                semanticsData = seman;
+            }
+            else{
+                semanticsData = getCache(`${name}_semantics`);
+            }
             const first = await firstItem(specifiedData, firstRssData, semanticsData);
             //console.log(first);
             res.json(first);

@@ -2,7 +2,6 @@
 
 const dotenv = require('dotenv');
 const {setScraperActive} = require('./setScraperActive');
-const { getCache, setCache } = require('../utils/cache');
 const cron = require('node-cron');
 const {updateSourceData} = require('./updateFrequency');
 require('./global');
@@ -23,9 +22,9 @@ async function startAndStopScraper(sourceName, frequency, address, startOrStop, 
     //let runningScrapers = getCache('runningScrapers');
     //let scrapersInFunction = getCache('scrapersInFunction'); 
 
-    console.log(frequency);
-    console.log(global.runningScrapers);
-    console.log(global.scrapersInFunction);
+    console.log('frekvencia: ',frequency);
+    //console.log('runningScrapers: ', global.runningScrapers);
+    //console.log('scrapersInFunction: ', global.scrapersInFunction);
     if (startOrStop) { //Ak je true tak zapínam scraper
         /*
         if (frequency > 0 || frequencyHour > 0) { //Ak je frekvencia väčšia ako 0 spúšťam opakované scrapovanie na základe tejto hodnoty
@@ -52,8 +51,8 @@ async function startAndStopScraper(sourceName, frequency, address, startOrStop, 
                     global.runningScrapers[sourceName].stop(); //Zastavenie scrapera pre novú inicializáciu
 
                     await setScraperActive(address, usejs, isActive, delay);
-                    const taskId = cron.schedule(`${frequency}`, async () => {  //Nastavenie časovača kedy sa scraper bude spúštať
-                        console.log('Running upadated scraper for', sourceName);
+                    var taskId = cron.schedule(`${frequency}`, async () => {  //Nastavenie časovača kedy sa scraper bude spúštať
+                        //console.log('Running upadated scraper for', sourceName);
                         try {
                             await setScraperActive(address, usejs, isActive, delay);  //Spustenie scrapera
                         } catch (error) {
@@ -68,7 +67,7 @@ async function startAndStopScraper(sourceName, frequency, address, startOrStop, 
             } else { // Ak scraper aktivovaný ešte nebol alebo je vypnutý 
                 // Ak pre daný zdroj už beží cron úloha, zrušíme ju a vytvoríme novú
                     await setScraperActive(address, usejs, isActive, delay);
-                    const taskId = cron.schedule(`${frequency}`, async () => {  //spustenie scrapera 
+                    var taskId = cron.schedule(`${frequency}`, async () => {  //spustenie scrapera 
                     console.log('Running new scraper for', sourceName);
                     try {
                         await setScraperActive(address, usejs, isActive, delay);
@@ -82,14 +81,32 @@ async function startAndStopScraper(sourceName, frequency, address, startOrStop, 
                 
             }
         //}
-    } else if (!startOrStop) { //Zastavenie scrapera 
+    } 
+    else{ 
+        console.log('startandstop: ', startOrStop);
+        const jobs = cron.getTasks();
+        console.log('jobs: ', jobs);
+        if (global.scrapersInFunction[sourceName]) { // Check či scraper právé beži teda či sťahuje dáta 
+            // Čakáme, kým sa predchádzajúca úloha dokončí
+            while (global.scrapersInFunction[sourceName]) {
+                //scrapersInFunction = getCache('scrapersInFunction');
+                console.log(sourceName, "waiting for end");
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            console.log(sourceName, "ended");
+            //setCache('runningScrapers', runningScrapers, 0);
+        } else {
+            global.runningScrapers[sourceName].stop();
+            
+        }
+        //Zastavenie scrapera 
         // Zastavíme cron úlohu pre daný zdroj
         //runningScrapers = getCache('runningScrapers')
         if (global.runningScrapers[sourceName]) {
             global.runningScrapers[sourceName].stop(); 
-            delete global.runningScrapers[sourceName]; 
-            console.log(global.runningScrapers);
-            console.log(global.scrapersInFunction);
+            //delete global.runningScrapers[sourceName]; 
+            console.log('end runningScrapers: ', global.runningScrapers);
+            console.log('end scrapersInFunction: ' ,global.scrapersInFunction);
             //setCache('runningScrapers', runningScrapers, 0);
             //console.log(sourceName, " stopped");
             

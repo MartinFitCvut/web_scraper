@@ -47,7 +47,7 @@ function LastRuns({ name }) {
           <h3 style={{marginRight: '20px', marginLeft: '20px'}}>Zadajte počet záznamov</h3>
           <input type="number" placeholder="počet"  value={numofResults} onChange={handleNumber} style={{height: '30px', borderRadius: '5px'}}/>
         </span>
-        <button className="dropbtn" onClick={handleLastRuns}>Vyhľadať</button>
+        <button className="dropbtn" style={{marginRight: '10px'}} onClick={handleLastRuns}>Vyhľadať</button>
       </div>
       <div className={show ? '' : 'nonactive'}>
         {lastRuns.map((run, index) => (

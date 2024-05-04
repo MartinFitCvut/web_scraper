@@ -10,6 +10,7 @@ const {getPageContent} = require('./puppeteerPage');
 const {findElements} = require('./findElements');
 require('../utils/global');
 const axios = require('axios');
+const cron = require('node-cron');
 dotenv.config();
 
 
@@ -48,7 +49,7 @@ function compareRecords(newData, record) {
             const value1 = obj1[key];
             const value2 = obj2[key];
             if(key === 'pubdate'){
-                console.log(obj1[key], obj2[key]);
+                //console.log(obj1[key], obj2[key]);
             }
             // Preskočte porovnanie, ak je hodnota z obj2 undefined
             if (value2 === undefined) {
@@ -113,9 +114,9 @@ async function setScraperActive(address, usejs, isActive, delay) {
             global.scrapersInFunction[name] = true;  //označenie že scraper začal pracovať
             const linkTo = mainItem.link;
             let pageMetadata;
+            let dataHTML;
             if(isActive !== 'onlyRSS'){
                 pageMetadata = await analyzePage(linkTo); //Získa Sémantické dáta ak to je možné  
-                let dataHTML;
                 if(usejs){  
                     dataHTML = await getPageContent(linkTo);
                 }
@@ -127,7 +128,7 @@ async function setScraperActive(address, usejs, isActive, delay) {
                             }
                         });
                         dataHTML = response.data;
-                        console.log('Status kód odpovede:', response.status);
+                        //console.log('Status kód odpovede:', response.status);
                     }
                     catch(error){
                         console.log('Status kód odpovede:', error.status);
@@ -144,7 +145,7 @@ async function setScraperActive(address, usejs, isActive, delay) {
                     }
                     if(key === "guid"){
                         if(!mainItem.hasOwnProperty('guid')){
-                            console.log('No guid');
+                            //console.log('No guid');
                             newData[key] = mainItem['link'];
                         }
                         else{
@@ -157,7 +158,7 @@ async function setScraperActive(address, usejs, isActive, delay) {
                         if(mainItem.hasOwnProperty(key)){
                             if(key === 'pubdate'){
                                 const newDate = new Date(mainItem[key]);  
-                                console.log(new Date(newDate.toISOString()));
+                                //console.log(new Date(newDate.toISOString()));
                                 newData[key] = newDate;
                             }
                             else{
@@ -182,7 +183,7 @@ async function setScraperActive(address, usejs, isActive, delay) {
                     }
                     
                     else if(keyValue.source !== 'RSS' && keyValue.source !== 'Semantics' && keyValue !== '' && key !== 'sourceID'){
-                        console.log(keyValue.source);
+                        //console.log(keyValue.source);
                         let findElementValue = await findElements(linkTo, keyValue.source, dataHTML); 
                         newData[key] = findElementValue;
                     }
@@ -205,7 +206,7 @@ async function setScraperActive(address, usejs, isActive, delay) {
                     if(differenceRecord.length !== 0 || differenceNewData.length !== 0){
                         
                         await collection.deleteOne(record); //Vymaže z Current Article kolekcie tento záznam 
-                        console.log("Deleted one from current database");
+                        //console.log("Deleted one from current database");
                         upadatedDataInRun.push(newData.guid);
                         await collection.insertOne(newData);
 
@@ -218,8 +219,8 @@ async function setScraperActive(address, usejs, isActive, delay) {
                             console.log(error)
                         }
                         //console.log('Vložil sa nový záznam');
-                        console.log('Difference newData:');
-                        differenceNewData.forEach((difference, index) => {
+                        //console.log('Difference newData:');
+                        /*differenceNewData.forEach((difference, index) => {
                             console.log(`Difference ${index + 1}:`, difference);
                         });
 
@@ -229,6 +230,7 @@ async function setScraperActive(address, usejs, isActive, delay) {
                             console.log(`Difference ${index + 1}:`, difference);
                         });
                         console.log("New version added " + record.guid);
+                        */
                         
                     }
                     else{
@@ -263,7 +265,7 @@ async function setScraperActive(address, usejs, isActive, delay) {
             updatedArticles: upadatedDataInRun,
             creationDate: actualDate
         };
-        console.log(runsData);
+        //console.log(runsData);
         await runscollection.insertOne(runsData);
         return true;
     }

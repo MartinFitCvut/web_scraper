@@ -71,7 +71,6 @@ body{
   margin-bottom: 50px;
   max-width: 650px;
   min-width: 400px;
-  
   border: 1px solid;
   border-radius: 10px;
   padding: 10px;
@@ -128,21 +127,25 @@ body{
 .clearfix {
   display: flex;
   text-align: left;
-  margin: 10px 10px 0px 10px;
-  background-color: white;
+  justify-content: space-between;
+  margin: 10px 0px 0px 0px;
+  
 }
 
 .half {
-  width: 60%;
+  
   height: 80vh; /* nastavenie výšky na 100% výšky obrazovky */
   overflow-y: auto; /* povolenie vertikálneho scrollovania, ak je obsah dlhší ako výška */
-  border: 1px solid;
   word-break: break-word; /* Zalomí text, aby sa zmestil do šírky kontajnera */
   white-space: pre-wrap;
   resize: none;
   box-sizing: border-box;
-  box-shadow: 5px 5px 10px grey;
   margin-right: 20px;
+  background: white;
+  box-shadow: 5px 5px 5px grey;
+  align-self: flex-start;
+  position: sticky;
+  top: 0;
 }
 
 .half p {
@@ -156,16 +159,17 @@ body{
 }
 
 .textfield {
-  width: 30%;
   height: 80vh;
-  border: 1px solid;
+  border: 3px solid grey;
   word-break: break-word;
   white-space: pre-wrap;
   resize: none;
   display: flex;
   flex-direction: column;
   box-sizing: border-box; /* zahrnie padding a border do celkovej veľkosti prvku */
-  box-shadow: 5px 5px 10px grey;
+  background: white;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
 .textfield p {
@@ -220,7 +224,6 @@ textarea {
 }
 
 .iframeClass{
-  width: 60%;
   height: 80vh;
   display: flex;
   flex-direction: column;
@@ -295,16 +298,27 @@ textarea {
 }
 
 .chooseFrom{
+  background-color: rgb(0, 64, 157);
   display: flex;
   flex-direction: column;
-  width: 10%;
+  width: 13%;
+  margin-right: 10px;
+  margin-left: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 15px;
+  border-radius: 15px;
+  box-shadow: 5px 5px 5px grey;
+  color: white;
+  
 }
 
 .chooseFrom button{
+  border: 1px solid black;
   height: 60px;
   margin: 10px 10px 10px 0px;
   border-radius: 5px;
-  box-shadow: 5px 5px 5px grey;
+  box-shadow: 5px 5px 5px black;
   cursor: pointer;
   transition: 300ms;
   font-weight: bold;
@@ -320,10 +334,10 @@ textarea {
 }
 .nonactive-menu-button{
   color: black;
-  
+  border: 1px solid black;
   box-shadow: 3px 3px 3px grey;
   border: none;
-  background-color: #bbeeff;    
+  background-color: white;    
 }
 
 .chooseFrom button:hover{
@@ -339,7 +353,6 @@ textarea {
 
 .templateButtons{
   display: flex;
-  width: 30%;
   align-items: center;
 }
 
@@ -353,7 +366,7 @@ textarea {
   font-size: medium;
   font-family: "Roboto", sans-serif;
   transition: 300ms;
-  
+  font-weight: bold;
 }
 
 .templateButtons button:hover{
@@ -375,9 +388,9 @@ textarea {
 
 .nonactive-button{
   color: black;
-  text-shadow: 1px 1px rgb(195, 220, 232);
+  border: 1px solid black;
   box-shadow: 3px 3px 3px grey;
-  background-color: #bbeeff;   
+  background-color: white;   
   border: none; 
 }
 
@@ -462,7 +475,7 @@ textarea {
     padding-bottom: 5px;
   }
   .isrunningscraper p{
-    color: grey;
+    color: rgb(45, 45, 45);
   }
 
 .scraperDes{
@@ -500,9 +513,10 @@ textarea {
 
 
 .startscraper button{ 
+  font-size: large;
   margin-left: 10px;
   margin-right: 10px;
-  width: 100px;
+  width: 150px;
   margin-bottom: 50px;
 }
 
@@ -524,10 +538,38 @@ textarea {
   } 
 
 @media only screen and (max-width: 900px) {
+  .chooseFrom{
+    flex-direction: column;
+  }
+}
+
+@media only screen and (max-width: 1500px) {
   .templateButtons {
     flex-direction: column;
+    width: 100%;
+    margin-left: 10px;
+    margin-right: 20px;
+
+  }
+  .templateButtons button{
+    margin-bottom: 10px;
+    margin-left: 0px;
+    width: inherit;
+    padding: 5px;
+    border-radius: 0px;
+    font-size: medium;
+    font-family: "Roboto", sans-serif;
+    font-weight: bold;
+    transition: 300ms;
   }
   .chooseFrom{
     flex-direction: column;
+  }
+  .templates{
+    height: auto;
+  }
+  .nonactive-button{
+    border: 1px solid black;
+    border-radius: 10px;
   }
 }

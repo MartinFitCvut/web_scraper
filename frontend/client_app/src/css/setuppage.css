@@ -4,7 +4,8 @@
     margin: auto;
     min-height: 100px;
     justify-content: space-evenly;
-    align-items: baseline;
+    align-items: center;
+    flex-direction: column;
 }
 
 .sourceSetup h1{
@@ -12,4 +13,25 @@
     font-weight: 900;
     font-style: normal;
     font-size: 70px;
+}
+
+.stopclass{
+    width: 100%;
+    text-align: center;
+    background-color: lightgrey;
+    border: 1px solid black;
+}
+
+.runclass{
+    width: 100%;
+    text-align: center;
+    background-color: rgb(56, 183, 56);
+    border: 1px solid black;
+}
+
+.waitclass{
+    width: 100%;
+    text-align: center;
+    background-color: orange;
+    border: 1px solid black;
 }

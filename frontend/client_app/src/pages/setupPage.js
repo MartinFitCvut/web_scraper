@@ -12,6 +12,9 @@ import { format } from 'date-fns';
 import LastRuns from "./lastruns";
 import CronScheduler from "../components/cronsetup/cronscheduler";
 import Tooltip from '@mui/material/Tooltip';
+import { Link } from "react-router-dom";
+import { useLocation } from 'react-router-dom';
+import { useLayoutEffect } from "react";
 import '../css/setuppage.css';
 
 //import SSEComponent from '../components/currentRuns';
@@ -30,6 +33,7 @@ function SetupPage() {
   const [rssData, setRssData] = useState('');
   const [semanticsData, setSemanticsData] = useState('');
   const [delay, setDelay] = useState(0);
+  const [enabled, setEnabled] = useState('');
   const [checked, setChecked] = useState({
     onlyRSS: false,
     onlySemantics: false,
@@ -56,11 +60,15 @@ function SetupPage() {
   const [dataForm, setDataForm] = useState('insight');
   const [useJavaScript, setUseJavaScript] = useState(false);
 
+
   let timeout;
+
+  
 
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
+      behavior: 'instant'
     });
   };
 
@@ -82,14 +90,18 @@ function SetupPage() {
     eventSource.onmessage = function (event) {
       const data = JSON.parse(event.data);
       const newMessage = data.status;
+      setEnabled(newMessage);
       if (newMessage === 'run') {
-        setIsActive('Scraper aktívne pracuje');
+        setIsActive('Scraper aktívne extrahuje dáta');
       }
       else if (newMessage === 'wait') {
-        setIsActive('Scraper je v stave čakania');
+        setIsActive('Extrakcia je v stave čakania');
+      }
+      else if (newMessage === 'error') {
+        setIsActive('Scraper skončil extrakciu s chybou');
       }
       else {
-        setIsActive('Scraper je zastavený');
+        setIsActive('Scraper pre zdroj je zastavený');
       }
     };
     return () => {
@@ -509,8 +521,10 @@ function SetupPage() {
   const handleStartOnce = async () => {
 
     if(checkbeforesend() && ableSend){
+      
       setMessages('');
       try {
+        alert('Scraper začal extrahovať dáta')
         const response = await fetch(`http://localhost:5000/api/setActive/${name}/setup`, {
           method: 'POST',
           headers: {
@@ -544,6 +558,7 @@ function SetupPage() {
     if (checkbeforesend() && ableSend) {
       setMessages('');
       if(frequency !== ''){
+        alert('Scraper začal extrahovať dáta')
         try {
           const response = await fetch(`http://localhost:5000/api/setActive/${name}/setup`, {
             method: 'POST',
@@ -754,6 +769,7 @@ function SetupPage() {
 
   useEffect(() => {
     setLoading(true);
+    scrollToTop();
     const fetchData = async () => {
       try {
         console.log(checked);
@@ -775,18 +791,19 @@ function SetupPage() {
           const configData = object.scrapeConfiguration;
           setRssData(rss);
           setSemanticsData(seman);
+          setEnabled(enable);
 
           if (enable === 'run') {
-            setIsActive('Scraper aktívne pracuje');
+            setIsActive('Scraper aktívne extrahuje dáta');
           }
           else if (enable === 'wait') {
-            setIsActive('Scraper je v stave čakania');
+            setIsActive('Extrakcia je v stave čakania');
           }
           else if (enable === 'error') {
-            setIsActive('Scraper skončil s chybou');
+            setIsActive('Scraper skončil extrakciu s chybou');
           }
           else {
-            setIsActive('Scraper je zastavený');
+            setIsActive('Scraper pre zdroj je zastavený');
           }
           if (active === 'onlyRSS' || active === 'onlySemantics' || active === 'rssAndSemantics') {
             setChecked(prevState => ({
@@ -875,107 +892,149 @@ function SetupPage() {
       </div>
       <div className="sourceSetup">
         <h1>Aktuálny zdroj: <b>{name}</b></h1>
+        <div className={enabled === 'run' ? 'runclass' : enabled === 'wait' ? 'waitclass' : enabled === 'error' ? 'errorclass' : 'stopclass'}>
+          <h2>
+            {isActive}
+          </h2>
+        </div>
       </div>
       <div className="scraperDes">
         <h2 className="scraperDesH2" style={{width: '26%'}}>Vyberte si z predpripravených šablón alebo si definujte vlastné nastavenia</h2>
         <h2 className="scraperDesH2" style={{width: '58%', fontSize: '40px'}}>Nazrite ako vyzerajú Vaše nastavenia</h2>
         <h2 className="scraperDesH2" style={{width: '10%'}}>Prezrite si rôzne náhľady</h2>
       </div>
-      <div style={{display: 'flex'}}>
-        <div className='descScrape' style={{width: '29.9%'}}><h1>Nastavenie scrapera</h1><h3>Preddefinované šablóny alebo samostatná konfigurácia</h3></div>
-        <div className='descScrape' style={{width: '58.8%'}}><h1>Náhľad nad extrahované dáta</h1><h3>Ako vyzerá článok podľa Vašich nastavení</h3></div>
-        <div className='descScrape' style={{width: '11.8%', borderBottom: '1px solid grey'}}><h1>Vyber si náhľad</h1></div>
-      </div>
-      <div className="templates">
-        <div className="templateButtons">
-          <Tooltip title="Predpripravená šablóna pre extrakciu dát len z RSS záznamu" placement="top">
-          <button className={checked.onlyRSS ? ('active-button') : ('nonactive-button')} onClick={() => handleChange("onlyRSS")}>RSS</button>
-          </Tooltip>
-          <button className={checked.onlySemantics ? ('active-button') : ('nonactive-button')} onClick={() => handleChange("onlySemantics")}>Semantické</button>
-          <button className={checked.rssAndSemantics ? ('active-button') : ('nonactive-button')} onClick={() => handleChange("rssAndSemantics")}>RSS & Semantické</button>
-        </div>
-        <div className="templateButtons">
-          <h2 style={{marginLeft: '20px'}}>Zobraiť ako: </h2>
-          <button className={showDataAsArticle ? ('nonactive-button') : ('active-button')} onClick={() => handleTextAsArticle(false)}>Zobraziť dáta</button>
-          <button className={showDataAsArticle ? ('active-button') : ('nonactive-button')} onClick={() => handleTextAsArticle(true)}>Zobraziť ako článok</button>
-        </div>
-        <div style={{display: 'flex', alignItems: 'center', marginLeft: '10px'}}>
-          <h2>Použiť JavaScript</h2>
-          <FormControlLabel
-                value="Use JavaScript"
-                control={<Switch color="primary" onChange={handleJavaScript} />}
-                labelPlacement="start"
-                
-              />
-        </div>
-      </div>
+      
+      {/*
+      <div className="templateButtons">
+              <h2 style={{marginLeft: '20px'}}>Zobraiť ako: </h2>
+              <button className={showDataAsArticle ? ('nonactive-button') : ('active-button')} onClick={() => handleTextAsArticle(false)}>Zobraziť dáta</button>
+              <button className={showDataAsArticle ? ('active-button') : ('nonactive-button')} onClick={() => handleTextAsArticle(true)}>Zobraziť ako článok</button>
+              <div style={{display: 'flex', alignItems: 'center', marginLeft: '10px'}}>
+              <h2>Použiť JavaScript</h2>
+              <FormControlLabel
+                    value="Use JavaScript"
+                    control={<Switch color="primary" onChange={handleJavaScript} />}
+                    labelPlacement="start"
+                    
+                  />
+            </div>
+      </div>*/}
+      
       <div className="clearfix">
-        <div className="textfield">
-          <div className="isrunningscraper">
-            <p>{isActive}</p>
+        <div style={{width: '29%', marginRight: '20px', background: 'rgb(0 64 157)', borderRadius: '15px', boxShadow: '5px 5px 5px grey'}}>
+          
+          <div style={{marginLeft: '25px', color: 'white'}}>
+            <h1>Nastavenie zdroja</h1>
+            <h2 style={{wordBreak: 'break-word'}}>Preddefinované šablóny alebo samostatná konfigurácia</h2>
           </div>
-          {err.title ? (<TextField error label="Povinné" value={userInput.title.source} id="title" sx={{ m: 1, width: 'auto' }} onChange={(event) => {
-            handleUserInputChange(event, 'title');
-            //handleMandatoryArea(event, 'title');
-          }}
-            InputProps={{
-              startAdornment: <InputAdornment position="start">title: </InputAdornment>,
-            }}
-          />) : (<TextField label="Povinné" value={userInput.title.source} id="title" sx={{ m: 1, width: 'auto' }} onChange={(event) => {
-            handleUserInputChange(event, 'title');
-            //handleMandatoryArea(event, 'title');
-          }}
-            InputProps={{
-              startAdornment: <InputAdornment position="start">title: </InputAdornment>,
-            }}
-          />)}
+          <h2 style={{textAlign:'center', marginBottom: '0px', marginTop: '40px', color: 'white'}}>Šablóny</h2>
+            <div className="templates">
+              <div className="templateButtons" style={{marginLeft: '20px'}}>
+                <Tooltip arrow title={<p style={{fontSize: '14px'}}>Predpripravená šablóna pre extrakciu dát len z RSS záznamu</p>} placement="top">
+                  <button className={checked.onlyRSS ? ('active-button') : ('nonactive-button')} onClick={() => handleChange("onlyRSS")}>RSS</button>
+                </Tooltip>
+                <Tooltip arrow placement="top" title={<p style={{fontSize: '14px'}}>Predpripravená šablóna pre extrakciu Semántických dát</p>}>
+                  <button className={checked.onlySemantics ? ('active-button') : ('nonactive-button')} onClick={() => handleChange("onlySemantics")}>Semantické</button>
+                </Tooltip>
+                <Tooltip arrow placement="top" title={<p style={{fontSize: '14px'}}>Predpripravená šablóna pre extrakciu Semántických a RSS dát v jednej šablóne</p>}>
+                  <button className={checked.rssAndSemantics ? ('active-button') : ('nonactive-button')} onClick={() => handleChange("rssAndSemantics")}>RSS & Semantické</button>
+                </Tooltip>
+              </div>
+            </div>
+          <div className="textfield">
+            <div className="isrunningscraper">
+              <p>{isActive}</p>
+            </div>
+            <div style={{display: 'flex', alignItems: 'baseline'}}>
+              {err.title ? (<TextField error label="Povinné" value={userInput.title.source} id="title" sx={{ m: 1, width: '100%'}} onChange={(event) => {
+                handleUserInputChange(event, 'title');
+                
+              }}
+                InputProps={{
+                  startAdornment:<InputAdornment position="start">title: </InputAdornment>,
+                }}
+              />) : (<TextField label="Povinné" value={userInput.title.source} id="title" sx={{ m: 1, width: '100%' }} onChange={(event) => {
+                handleUserInputChange(event, 'title');
+              
+              }}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">title: </InputAdornment>,
+                }}
+              />)}
+              
+              <Tooltip arrow placement="top" title={<Link style={{textDecoration: 'none', color: 'white', fontSize: '14px'}}>Vlastné nastavenie extrahovania pre Názov. Toto je poviná časť vlastného nastavenie extrakcie. Pre bližšie informácie klinite tu</Link>}>
+                <p style={{marginRight: '5px', fontSize: '20px', cursor: 'pointer'}}>🛈</p>
+              </Tooltip>
+            
+            </div>
+            <div style={{display: 'flex', alignItems: 'baseline'}}>
+              {err.link ? (<TextField error label="Povinné" value={userInput.link.source} id="link" sx={{ m: 1, width: '100%' }} onChange={(event) => {
+                handleUserInputChange(event, 'link');
+                //handleMandatoryArea(event, 'link');
+              }}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">link: </InputAdornment>,
+                }}
+              />) : (<TextField label="Povinné" value={userInput.link.source} id="link" sx={{ m: 1, width: '100%' }} onChange={(event) => {
+                handleUserInputChange(event, 'link');
+                //handleMandatoryArea(event, 'link');
+              }}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">link: </InputAdornment>,
+                }}
+              />)}
+                <Tooltip arrow placement="top" title={<Link style={{fontSize: '14px', textDecoration: 'none', color: 'white'}}>Vlastné nastavenie extrahovania pre Link. Pre viac informácií kliknite tu</Link>}>
+                  <p style={{marginRight: '5px', fontSize: '20px', cursor: 'pointer'}}>🛈</p>
+                </Tooltip>
+            </div>
+            <div style={{display: 'flex', alignItems: 'baseline'}}>
+              {err.des ? (<TextField error label="Povinné" value={userInput.description.source} id="description" sx={{ m: 1, width: '100%' }} onChange={(event) => {
+                handleUserInputChange(event, 'description');
+                //handleMandatoryArea(event, 'description');
+              }}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">description: </InputAdornment>,
+                }}
+              />) : (<TextField label="Povinné" value={userInput.description.source} id="description" sx={{ m: 1, width: '100%' }} onChange={(event) => {
+                handleUserInputChange(event, 'description');
+                //handleMandatoryArea(event, 'description');
+              }}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">description: </InputAdornment>,
+                }}
+              />)}
+                <Tooltip arrow placement="top" title={<Link style={{color: 'white', textDecoration: 'none', fontSize: '14px'}}>Vlastné nastavenie extrahovania Popisu. Pre viac informácií kliknite tu</Link>}>
+                  <p style={{marginRight: '5px', fontSize: '20px', cursor: 'pointer'}}>🛈</p>
+                </Tooltip>
+              
+            </div>
+            {err.other ? (<textarea style={{ border: 'red solid' }} ref={textareaRef} onKeyDown={handleKeyDown} onChange={handleTextArea} placeholder={additionalData} />) : (<textarea ref={textareaRef} onKeyDown={handleKeyDown} onChange={handleTextArea} placeholder={additionalData} />)}
 
-          {err.link ? (<TextField error label="Povinné" value={userInput.link.source} id="link" sx={{ m: 1, width: 'auto' }} onChange={(event) => {
-            handleUserInputChange(event, 'link');
-            //handleMandatoryArea(event, 'link');
-          }}
-            InputProps={{
-              startAdornment: <InputAdornment position="start">link: </InputAdornment>,
-            }}
-          />) : (<TextField label="Povinné" value={userInput.link.source} id="link" sx={{ m: 1, width: 'auto' }} onChange={(event) => {
-            handleUserInputChange(event, 'link');
-            //handleMandatoryArea(event, 'link');
-          }}
-            InputProps={{
-              startAdornment: <InputAdornment position="start">link: </InputAdornment>,
-            }}
-          />)}
-
-          {err.des ? (<TextField error label="Povinné" value={userInput.description.source} id="description" sx={{ m: 1, width: 'auto' }} onChange={(event) => {
-            handleUserInputChange(event, 'description');
-            //handleMandatoryArea(event, 'description');
-          }}
-            InputProps={{
-              startAdornment: <InputAdornment position="start">description: </InputAdornment>,
-            }}
-          />) : (<TextField label="Povinné" value={userInput.description.source} id="description" sx={{ m: 1, width: 'auto' }} onChange={(event) => {
-            handleUserInputChange(event, 'description');
-            //handleMandatoryArea(event, 'description');
-          }}
-            InputProps={{
-              startAdornment: <InputAdornment position="start">description: </InputAdornment>,
-            }}
-          />)}
-
-          {err.other ? (<textarea style={{ border: 'red solid' }} ref={textareaRef} onKeyDown={handleKeyDown} onChange={handleTextArea} placeholder={additionalData} />) : (<textarea ref={textareaRef} onKeyDown={handleKeyDown} onChange={handleTextArea} placeholder={additionalData} />)}
-
-
-          <div className="isrunningscraper" style={{marginBottom: '0px'}}>
-            <p>{isActive}</p>
+          </div>
+          <div className="isrunningscraper" style={{marginBottom: '0px', borderRadius: '0px 0px 15px 15px'}}>
+              <p>{isActive}</p>
           </div>
         </div>
-        {loading === false ? (<>
-
-          {dataForm === 'insight' ? (
-            <>
-              {data ? (
-                <div className="half">
-                  {showDataAsArticle ? (
+        <div style={{width: '55%', paddingLeft: '15px', paddingRight: '15px', paddingBottom: '15px', background: 'rgb(212 227 255)', borderRadius: '15px', boxShadow: '5px 5px 5px grey'}}>
+          <h1>Nahliadnite na vaše nastavenia</h1>
+          <h3>Alebo si vyberte jeden z náhľadov v menu na pravo</h3>
+          <div className="templates">
+            <div className="templateButtons">
+              <h2 style={{marginLeft: '20px'}}>Zobraiť ako: </h2>
+              <Tooltip arrow placement="top" title={<p style={{fontSize: '14px'}}>Náhľad extrahovaných dát vo formáte kľúč-hodnota</p>}>
+                <button className={showDataAsArticle ? ('nonactive-button') : ('active-button')} onClick={() => handleTextAsArticle(false)}>Zobraziť dáta</button>
+              </Tooltip>
+              <Tooltip arrow placement="top" title={<p style={{fontSize: '14px'}}>Náhľad extrahovaných dát vo formáte podobnom článku</p>}>
+                <button className={showDataAsArticle ? ('active-button') : ('nonactive-button')} onClick={() => handleTextAsArticle(true)}>Zobraziť ako článok</button>
+              </Tooltip>
+            </div>
+          </div>
+          {loading === false ? (<>
+            {dataForm === 'insight' ? (
+              <>
+                {data ? (
+                  <div className="half">
+                    {showDataAsArticle ? (
                     <article>
                       <a href={data.link} target="_blank" className="articleLink"><h1>{data.title}</h1></a>
                       <div className="articleInnerContent">
@@ -1098,22 +1157,31 @@ function SetupPage() {
           </div>
 
         )}
-
-        <div className="chooseFrom">
-          <button className={dataForm === 'insight' ? 'active-menu-button' : 'nonactive-menu-button'} onClick={() => handleFormOfData('insight')}>Náhľad extrakcie</button>
-          <button className={dataForm === 'rss' ? 'active-menu-button' : 'nonactive-menu-button'} onClick={() => handleFormOfData('rss')}> RSS </button>
-          <button className={dataForm === 'Semantics' ? 'active-menu-button' : 'nonactive-menu-button'} onClick={() => handleFormOfData('Semantics')}>Semantické dáta</button>
-          <button className={dataForm === 'article' ? 'active-menu-button' : 'nonactive-menu-button'} onClick={() => handleFormOfData('article')}>Článok na portáli</button>
         </div>
+        <div className="chooseFrom">
+          <h2>Prepnite si náhľady</h2>
+          <Tooltip arrow placement="top" title={<p style={{fontSize: '14px'}}>Zobrazí náhľad nad Vaše nastavenia extrahovania</p>}>
+            <button className={dataForm === 'insight' ? 'active-menu-button' : 'nonactive-menu-button'} onClick={() => handleFormOfData('insight')}>Náhľad extrakcie</button>
+          </Tooltip>
+          <Tooltip arrow placement="top" title={<p style={{fontSize: '14px'}}>Zobrazí náhľad nad extrahované RSS dáta</p>}>
+            <button className={dataForm === 'rss' ? 'active-menu-button' : 'nonactive-menu-button'} onClick={() => handleFormOfData('rss')}> RSS </button>
+          </Tooltip>
+          <Tooltip arrow placement="top" title={<p style={{fontSize: '14px'}}>Zobrazí náhľad nad extrahované Sémantické dáta</p>}>
+            <button className={dataForm === 'Semantics' ? 'active-menu-button' : 'nonactive-menu-button'} onClick={() => handleFormOfData('Semantics')}>Semantické dáta</button>
+          </Tooltip>
+          <Tooltip arrow placement="top" title={<p style={{fontSize: '14px'}}>Zobrazí náhľad nad článok na spravodajskom portáli</p>}>
+            <button className={dataForm === 'article' ? 'active-menu-button' : 'nonactive-menu-button'} onClick={() => handleFormOfData('article')}>Článok na portáli</button>
+          </Tooltip>
+        </div>
+
       </div>
      
       <div className='StartAndStop'>
         <h1>Spustenie Scraper</h1>
         <div style={{display: 'flex', alignItems: 'baseline', justifyContent: 'space-between'}}>
-          <h3 style={{marginLeft: '20px'}}>{isActive}</h3>
-          <p>{responseData}</p>
+          <h3 style={{padding: '5px', backgroundColor: enabled === 'run' ? 'rgb(56, 183, 56)' : enabled === 'wait' ? 'orange' : 'lightgrey'}}>{isActive}</h3>
         </div>
-        {messages}
+  
         <div className="oneTimeScraper">
           <h3>Spustiť scraper jednorázovo</h3>
           <button className='dropbtn' onClick={handleStartOnce}>Spustiť</button>
@@ -1129,6 +1197,10 @@ function SetupPage() {
         <h2 style={{marginTop: '40px', marginBottom: '10px'}}>Spustiť scraper opakovane</h2>
         
         <CronScheduler scheduledCronValue={handleFrequency}/>
+        <div style={{display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
+          <h3 style={{padding: '5px', backgroundColor: enabled === 'run' ? 'rgb(56, 183, 56)' : enabled === 'wait' ? 'orange' : 'lightgrey'}}>{isActive}</h3>
+          <p>{messages}</p>
+        </div>
         
         <div className="startscraper">
           <button className="dropbtn" onClick={handleStart}>Spustiť</button>

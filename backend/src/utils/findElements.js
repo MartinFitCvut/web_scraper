@@ -21,7 +21,7 @@ async function findElements(url, selector, loadHTML) {
     try {
         let usedHTML;
         if(loadHTML === null){
-            console.log('Using axios')
+            //console.log('Using axios')
             const response = await axios.get(url, {
                 headers: {
                     'User-Agent': 'Master-thesis'
@@ -30,10 +30,11 @@ async function findElements(url, selector, loadHTML) {
             usedHTML = await removeNoscriptTags(response.data);
         }
         else{
+            //console.log('Using puppeteer')
             usedHTML = usedHTML = await removeNoscriptTags(loadHTML);
         }
         
-        console.log('Selector: ',selector);
+        //console.log('Selector: ',selector);
         const $ = cheerio.load(usedHTML);
         let elements;
         //console.log(selector);
@@ -75,8 +76,8 @@ async function findElements(url, selector, loadHTML) {
             //console.log(matches[1]);
             const parentSelectors = source[0];
             const childSelectors = matches[1]
-            console.log(parentSelectors);
-            console.log(childSelectors);
+            //console.log(parentSelectors);
+            //console.log(childSelectors);
             elements = $(parentSelectors)
                     .children(childSelectors)
                     .map((index, element) => $(element).text().trim())

@@ -1,7 +1,8 @@
 import React from "react";
 import source from "../../images/source.svg";
+import { NavLink } from "react-router-dom";
 
-function GeneralInfo({ handleDocuments }) {
+function GeneralInfo() {
     return (
         <div style={{marginRight: '20px'}}>
             <h1 id="generalinfo">Dokumentácia</h1>
@@ -31,7 +32,7 @@ function GeneralInfo({ handleDocuments }) {
             <article>   
                 <h2>Na čo slúžia</h2>
                 <p>Táto aplikácia využíva RSS záznamy pre získavanie článkov, a teda automaticky prechádza jednotlivé prvky v tomto RSS zázname a vykonáva pre nich extrakciu podľa nastavených pravidiel.</p>
-                <p>Pridať nový zdroj web scrapera je možný a domovskej stránke a bližšie infomácie o pridávaní sú zobrazené v <a href="#newsource" onClick={() => handleDocuments('tutorial')}> tutoriály</a></p>
+                <p>Pridať nový zdroj web scrapera je možný a domovskej stránke a bližšie infomácie o pridávaní sú zobrazené v <NavLink to='/docs/tutorial#newsource'> tutoriály</NavLink></p>
                 
                 <article style={{ display: 'flex', flexDirection: 'column' }}>
                     <h2>Čo obsahuje zdroj</h2>
