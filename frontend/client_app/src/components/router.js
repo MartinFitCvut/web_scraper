@@ -9,6 +9,7 @@ import Footer from "./footer";
 import SpecificRun from "../pages/specificRun";
 import Docs from "../pages/docs";
 import Tutorial from "./docs/tutorial";
+import Selectors from "./docs/selectors";
 import GeneralInfo from "./docs/generelInfo";
 
 function AppRouter() {
@@ -24,6 +25,7 @@ function AppRouter() {
         <Route path="/docs" element={<Docs />}>
           <Route path="general" element={<GeneralInfo />} />
           <Route path="tutorial" element={<Tutorial />} />
+          <Route path="selectors" element={<Selectors />} />
         </Route>
       </Routes>
       <Footer />

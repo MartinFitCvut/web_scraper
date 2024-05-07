@@ -52,11 +52,11 @@ function LastRuns({ name }) {
       <div className={show ? '' : 'nonactive'}>
         {lastRuns.map((run, index) => (
           <div key={index} className="lastRuns">
-            <p>Name: {run.name}</p>
-            <p>URL: {run.url}</p>
-            <p>New Articles: {run.newArticles.length}</p>
-            <p>Updated Articles: {run.updatedArticles.length}</p>
-            <p>Creation Date: {new Date(run.creationDate).toLocaleString()}</p>
+            <p>Názov: {run.name}</p>
+            <p>RSS URL: {run.url}</p>
+            <p>Nové články: {run.newArticles.length}</p>
+            <p>Upravené články: {run.updatedArticles.length}</p>
+            <p>Dátum spustenia: {new Date(run.creationDate).toLocaleString()}</p>
             <button  className='showbutton'>
               <Link to={`/lastRuns/${name}/${run.creationDate}`} state={{news: run.newArticles, update: run.updatedArticles}} style={{textDecoration: 'none', color: 'black'}}>  Zobraziť </Link>
             </button>

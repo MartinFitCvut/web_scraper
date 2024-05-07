@@ -1027,6 +1027,15 @@ function SetupPage() {
               <Tooltip arrow placement="top" title={<p style={{fontSize: '14px'}}>Náhľad extrahovaných dát vo formáte podobnom článku</p>}>
                 <button className={showDataAsArticle ? ('active-button') : ('nonactive-button')} onClick={() => handleTextAsArticle(true)}>Zobraziť ako článok</button>
               </Tooltip>
+              <div style={{display: 'flex', alignItems: 'center', marginLeft: '10px'}}>
+                <h2>Použiť JavaScript</h2>
+                <FormControlLabel
+                      value="Use JavaScript"
+                      control={<Switch color="primary" onChange={handleJavaScript} />}
+                      labelPlacement="start"
+                      
+                    />
+              </div>
             </div>
           </div>
           {loading === false ? (<>
@@ -1103,6 +1112,7 @@ function SetupPage() {
                 <iframe src={address} title="Originálny článok">
                 </iframe>
               </div>
+              <a href={address} style={{color: 'black'}}><p  style={{marginTop: '25px', color: 'black', fontSize: '16px'}}> Zobraziť na príslušnom spravodajskom portáli </p></a>
             </>) :
             dataForm === 'rss' ? (
               <div className="half">
@@ -1186,6 +1196,7 @@ function SetupPage() {
           <h3>Spustiť scraper jednorázovo</h3>
           <button className='dropbtn' onClick={handleStartOnce}>Spustiť</button>
         </div>
+        <p>{messages}</p>
         <div style={{display: 'flex', marginTop: '20px', alignItems: 'center', justifyContent:'end'}}>
           <h3>Nastaviť oneskorenie</h3>
           <input type="number" value={delay} style={{height: '25px', marginLeft:'20px'}} onChange={handleDelay}></input>

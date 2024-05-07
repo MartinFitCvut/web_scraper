@@ -11,19 +11,26 @@
 .document h1{
   border-bottom: 1px solid lightgrey;
   width: 80%;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 900;
+  font-size: 65px;
 }
 .document article{
   margin-top: 30px;
-  margin-bottom: 60px;
+  margin-bottom: 100px;
 }
 
 .navbar {
-  margin-top: 50px;
-    width: 200px;
+
+    width: inherit;
     border-right: 1px solid grey;
     border-bottom: 1px solid grey;
     height: fit-content;
     padding-bottom: 20px;
+    align-self: flex-start;
+    top: 0;
+    position: sticky;
+    background: #99ccff;
    
   }
 

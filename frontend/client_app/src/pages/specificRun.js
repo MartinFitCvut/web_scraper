@@ -37,6 +37,7 @@ function SpecificRun(){
       
           if (response.status == 200) {
             const data = await response.data;
+            console.log(data.newarticles);
             setNewArticles(data.newarticles);
             setUpdatedArticles(data.updatearticles);
             setNew_Update(data.newUpdatearticles);   
@@ -60,16 +61,20 @@ function SpecificRun(){
 
     return(
         <div className='version_articles'>
-            <button onClick={() => setNews(true)}>Novo pridané články</button>
-            <button onClick={() => setNews(false)}>Zmenené články</button>
+            <button className={news ? 'lastrunsbuttonsactive' : 'lastrunsbuttons'} onClick={() => setNews(true)}>Novo pridané články</button>
+            <button className={news ? 'lastrunsbuttons' : 'lastrunsbuttonsactive'} onClick={() => setNews(false)}>Zmenené články</button>
             {news ? (
+              newArticles && newArticles.length > 0 ? (
                 <div>
                   <h2>Novo pridané články</h2>
                   <ArticleView articles={newArticles}/>
-                </div>
+                </div>) 
+                : 
+                (<h1 style={{color: 'darkred'}}>Neboli pridané žiadne nové články</h1>)
+                
                 ) : (
-
-                <div>
+                  new_update && new_update.length > 0 ? (
+                  <div>
                     {new_update && new_update.map((article, index) => {
                         // Nájdite odpovedajúci záznam v updatedArticles na základe guid
                         const updatedArticle = updatedArticles.find(updatedArticle => updatedArticle.guid === article.guid);
@@ -87,6 +92,8 @@ function SpecificRun(){
                         }
                     })}
                 </div>
+                ) : (<h1 style={{color: 'darkred'}}>Neboli upravené žiadne články</h1>)
+                
             )}
 
            

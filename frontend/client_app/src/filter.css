@@ -22,7 +22,7 @@
 
 .sort_and_volume{
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
     align-items: baseline;
     margin: 0px;
     margin-right: 2%;
@@ -61,12 +61,13 @@
 .articleFullLinkAndImage{
   display: flex;
   margin: 25px 15px 25px 0px;
-  align-items: start;
+  align-items: flex-start;
   min-height: 350px;
   border: 1px solid rgb(91, 91, 91);
   border-radius: 20px;
   box-shadow: 10px 10px 5px rgb(107, 111, 111);  
   padding-bottom: 20px;
+  background-color: white;
 }
 
 .spaceforarticle{
@@ -96,6 +97,7 @@
     border: 1px solid rgb(91, 91, 91);
     border-radius: 20px;
     box-shadow: 10px 10px 5px rgb(107, 111, 111);
+    background-color: white;
 }
 
 .articleLinkAndImage p{
@@ -106,10 +108,6 @@
   font-family: "Roboto", sans-serif;
   font-weight: 400;
   font-style: normal;
-}
-
-.searchArticlePlace{
-    background-color: rgb(255, 255, 255);
 }
 
 .searchArticleImage{
@@ -253,7 +251,41 @@
 
 .version_articles{
   width: 90%;
-  margin: auto;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 25px;
+}
+
+.lastrunsbuttonsactive{
+  width: 200px;
+  height: 40px;
+  margin-bottom: 25px;
+  margin-right: 15px;
+  font-size: large;
+  font-weight: bold;
+  background-color: #77aaff;
+  transition: 300ms;
+}
+.lastrunsbuttons{
+  width: 200px;
+  height: 40px;
+  margin-bottom: 25px;
+  margin-right: 15px;
+  background-color: white;
+  font-size: large;
+  font-weight: bold;
+  transition: 300ms;
+}
+
+.lastrunsbuttons:hover {
+  background-color: #89CFF0;
+  transition: 300ms;
+}
+
+.lastrunsbuttonsactive:hover {
+  background-color: #89CFF0;
+  transition: 300ms;
+
 }
 
 .titleSearch{

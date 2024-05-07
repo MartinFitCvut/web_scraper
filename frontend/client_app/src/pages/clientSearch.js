@@ -15,6 +15,7 @@ import dayjs from 'dayjs';
 import { json, useAsyncError } from "react-router";
 import { Link } from 'react-router-dom';
 import DownloadButton from "../components/download";
+import { orderBy } from "lodash";
 import download from '../images/download.png';
 
 
@@ -211,27 +212,52 @@ function ClientSearch() {
       console.log(error);
     }
   };
-
+/*
   const handleSort = (direction) => {
     if (articles) {
-      const sortedArticles = [...articles].sort((a, b) => {
-        // Compare the pubdate of articles based on the sort direction
-        return direction === 1 ? new Date(a.pubdate) - new Date(b.pubdate) : new Date(b.pubdate) - new Date(a.pubdate);
-      });
+      let sortedArticles;
+      
+      if(direction === 1){
+        sortedArticles = [...articles].sort((a, b) => new Date(a.pubdate) - new Date(b.pubdate));
+      }
+      else{
+        sortedArticles = [...articles].sort((a, b) => new Date(b.pubdate) - new Date(a.pubdate));
+      }
+      
       setArticles(sortedArticles); // Update the state with sorted articles
-      localStorage.setItem('articles', JSON.stringify(sortedArticles));
+      //localStorage.setItem('articles', JSON.stringify(sortedArticles));
       console.log(newArt);
-      setTimeout(() => {
-        localStorage.removeItem('articles');
-      }, 300000)
+      console.log(sortedArticles.length);
+      //setTimeout(() => {
+      //  localStorage.removeItem('articles');
+      //}, 300000)
       setSortDirection(direction); // Toggle sort direction
     }
   };
-
+*/
   const handleSearchWord = (event) => {
     const inputValue = event.target.value;
     setSetWord(inputValue);
   }
+  
+  const handleSort = (direction) => {
+    if (articles) {
+      let sortedArticles;
+      if (direction === 1) {
+        sortedArticles = orderBy(articles, [(article) => new Date(article.pubdate)], ["asc"]);
+      } else {
+        sortedArticles = orderBy(articles, [(article) => new Date(article.pubdate)], ["desc"]);
+      }
+      localStorage.setItem('articles', JSON.stringify(sortedArticles));
+      setTimeout(() => {
+        localStorage.removeItem('articles');
+      }, 300000)
+      console.log(sortedArticles);
+      setArticles(sortedArticles); // Aktualizácia stavu s usporiadanými článkami
+      setSortDirection(direction); // Prepnutie smeru triedenia
+    }
+  };
+  
   /*
   useEffect(() => {
       const handleScroll = () => {
@@ -273,6 +299,10 @@ function ClientSearch() {
           <span className="datePicker">
             <p>Kľúčové slovo</p>
             <input className="wordsearch" label='Kľúčové slovo' type="string" value={setWord} onChange={handleSearchWord}></input>
+          </span>
+          <span className="datePicker">
+            <p>Názov zdroja</p>
+            <TextField label="Názov zdroja" variant="outlined" onChange={handleSourceIDChange} />
           </span>
           <span className="datePicker">
             <p>Dátum a čas od (min) </p>
@@ -348,10 +378,6 @@ function ClientSearch() {
                 )}
               </DemoContainer>
             </LocalizationProvider>
-          </span>
-          <span className="datePicker">
-            <p>SourceID</p>
-            <TextField label="sourceID" variant="outlined" onChange={handleSourceIDChange} />
           </span>
           <span className="datePicker">
             <p>Guid</p>
