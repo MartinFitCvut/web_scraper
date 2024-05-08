@@ -1,16 +1,16 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import React from "react";
-import HomePage from "../pages/HomePage";
-import SetupPage from "../pages/setupPage";
-import ClientSearch from "../pages/clientSearch";
-import ArticleVersions from "../pages/articleVersions";
-import Header from "./header";
-import Footer from "./footer";
-import SpecificRun from "../pages/specificRun";
-import Docs from "../pages/docs";
-import Tutorial from "./docs/tutorial";
-import Selectors from "./docs/selectors";
-import GeneralInfo from "./docs/generelInfo";
+import HomePage from "../../pages/HomePage";
+import SetupPage from "../../pages/setupPage";
+import ClientSearch from "../../pages/clientSearch";
+import ArticleVersions from "../../pages/articleVersions";
+import Header from "../header/header";
+import Footer from "../footer/footer";
+import SpecificRun from "../../pages/specificRun";
+import Docs from "../../pages/docs";
+import Tutorial from "../docs/tutorial";
+import Selectors from "../docs/selectors";
+import GeneralInfo from "../docs/generelInfo";
 
 function AppRouter() {
   return (

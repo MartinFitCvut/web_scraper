@@ -4,6 +4,7 @@ import '../../css/cron.css';
 import axios from "axios";
 import RenderMinutes from "./renderMinutes";
 
+//Komponent na nastavenie frekvencie a zobrazovanie cron hodnôts
 function CronScheduler({scheduledCronValue}){
 
     const [textColor, setTextColor] = useState('black');

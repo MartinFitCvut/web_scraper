@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { useParams } from 'react-router-dom';
 import '../css/lastruns.css';
 import axios from 'axios';
 import { Link } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+
 
 function LastRuns({ name }) {
 
@@ -12,25 +11,26 @@ function LastRuns({ name }) {
   const [numofResults, setNumOfResults] = useState(10);
 
   const handleLastRuns = async () => {
-    console.log(name);  // Log the name prop
+    console.log(name); 
     try {
-      const response = await fetch(`http://localhost:5000/api/getRuns/${name}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name: name, number: numofResults })
-      });
+        const response = await axios.post(`http://localhost:5000/api/getRuns/${name}`, {
+            name: name,
+            number: numofResults
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
-      if (response.ok) {
-        const resData = await response.json();
-        setLastRuns(resData);
-        setShow(true);
-      }
+        if (response.status === 200) {
+            const resData = response.data;
+            setLastRuns(resData);
+            setShow(true);
+        }
     } catch (error) {
-      console.error("Error fetching data:", error);
+        console.error("Error fetching data:", error);
     }
-  }
+};
 
   const handleNumber = (event) => {
     const inputValue = event.target.value;

@@ -1,24 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from 'react-router-dom';
 import Switch from '@mui/material/Switch';
-import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-//import FormLabel from '@mui/material/FormLabel';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
 import { format } from 'date-fns';
 import LastRuns from "./lastruns";
 import CronScheduler from "../components/cronsetup/cronscheduler";
 import Tooltip from '@mui/material/Tooltip';
 import { Link } from "react-router-dom";
-import { useLocation } from 'react-router-dom';
-import { useLayoutEffect } from "react";
 import '../css/setuppage.css';
-
-//import SSEComponent from '../components/currentRuns';
-
+import axios from 'axios';
 
 
 function SetupPage() {
@@ -54,7 +46,6 @@ function SetupPage() {
     description: { source: '' }
   });
   const [helpSearch, setHelpSearch] = useState('');
-  const [helpFindData, setHelpFindData] = useState('');
   const [showDataAsArticle, setShowDataAsArticle] = useState(true);
   const [combinedData, setCombinedData] = useState('');
   const [dataForm, setDataForm] = useState('insight');
@@ -110,16 +101,6 @@ function SetupPage() {
     };
   }, [name]);
 
-  const handleHelpSearchData = (event) => {
-    const value = event.target.value;
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      setHelpSearch(value);
-      //console.log(helpSearch);
-    }, 1000);
-
-  }
-
   const checkbeforesend = () => {
     if(activeNow === 'clientConfig' && ( mandatoryData.title.source.trim() === '' || mandatoryData.link.source.trim() === '' || mandatoryData.description.source.trim() === '')){
       return false;
@@ -131,43 +112,7 @@ function SetupPage() {
       return true;
     }
   }
-  /*
-    const handleMandatoryArea = (event, name) => {
-        const value = event.target.value.trim();
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          setMandatoryData(prevState => ({
-            ...prevState,
-            [name]:{ source: value}
-          }));
-          console.log(value);
-          console.log(mandatoryData);
-          setChecked({
-            onlyRSS: false,
-            onlySemantics: false,
-            rssAndSemantics: false
-          });
-          setActiveNow('clientConfig');
-          //setActiveNow("");
-        }, 500);
-      //console.log(mandatoryData);
-      //const mandatoryDataToJSON = JSON.stringify(mandatoryData, null, 2);
-      //console.log(mandatoryDataToJSON);
-    }*/
-  /*
-  const handleMandatoryArea = (name) => {
-    const value = userInput[name].source;
-
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      // Update the mandatoryData state after the delay
-      setMandatoryData((prevState) => ({
-        ...prevState,
-        [name]: { source: value },
-      }));
-    }, 500);
-  };*/
-
+ 
   const handleUserInputChange = (event, name) => {
     if (bla === false) {
       setBla(true);
@@ -205,10 +150,9 @@ function SetupPage() {
             rssAndSemantics: false
           });
           setActiveNow('clientConfig');
-          //setActiveNow("");
         }, 500);
       }, 500);
-      // Cleanup
+
       return () => {
         clearTimeout(debounceTimer);
       };
@@ -218,18 +162,16 @@ function SetupPage() {
 
   const handleTextArea = (event) => {
     console.log("Additional data");
-    const value = event.target.value; // Trim whitespace from start and end
+    const value = event.target.value; 
     const regex = /(?:"([^"]+)"|([\w:]+)):\s*([^\s;]+(?:\s+[^\s;]+)*)/g;
     let match;
     let jsonData = {};
 
-    // Check if the input is not just empty or whitespace before proceeding
     if (value !== '') {
       while ((match = regex.exec(value)) !== null) {
-        // Ensure matched value is not just whitespace or newline
         if (match[2] && match[3].trim() !== '') {
-          const name = match[1] || match[2]; // If match[1] is undefined, use match[2]
-          const val = match[3].trim(); // Trim value to remove leading/trailing whitespace
+          const name = match[1] || match[2]; 
+          const val = match[3].trim();
           jsonData[name] = { source: val };
         }
       }
@@ -237,7 +179,6 @@ function SetupPage() {
 
     clearTimeout(timeout);
     timeout = setTimeout(() => {
-      // Use JSON.stringify only if jsonData is not empty
       const additionalDataValue = Object.keys(jsonData).length === 0 ? '' : JSON.stringify(jsonData, null, 2);
 
       setAdditionalData(additionalDataValue);
@@ -258,80 +199,10 @@ function SetupPage() {
     if (mandatoryData.title.source === '' && mandatoryData.link.source === '' && mandatoryData.description.source === '' && additionalData === '' && activeNow !== null) {
       setActiveNow('noData');
     }
-    //else if(activeNow === 'noData' && (mandatoryData.title.source !== '' || mandatoryData.link.source !== '' || mandatoryData.description.source !== '' || additionalData !== '')){
-    //  setActiveNow('clientConfig');
-    //}
   }
   useEffect(() => {
     handlaConfigEmptyData();
   }, [mandatoryData, additionalData]);
-
-  /*
-  useEffect (() => {
-    const fetchData = async() => {
-      try {
-        const response = await fetch(`http://localhost:5000/api/getRSS/${name}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({name: name})
-        });
-        if (response.ok) {
-          const data = await response.text();
-          const jsonData = JSON.parse(data);
-          setRssData(jsonData);
-          
-          console.log(data);
-          
-        } else {
-          console.error('Nepodarilo sa získať dáta');
-        }
-      } catch (error) {
-        console.error('Chyba:', error);
-      }
-    }
-    fetchData();
-  }, [])
-
-  useEffect (() => {
-    const fetchData = async() => {
-      try {
-        const response = await fetch(`http://localhost:5000/api/getSemantics/${name}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({name: name})
-        });
-        if (response.ok) {
-          const data = await response.text();
-          const jsonData = JSON.parse(data);
-          setSemanticsData(jsonData);
-          
-          console.log(data);
-          
-        } else {
-          console.error('Nepodarilo sa získať dáta');
-        }
-      } catch (error) {
-        console.error('Chyba:', error);
-      }
-    }
-    fetchData();
-  }, [])
-*/
-  /*
-  const handleTextArea = (event) => {
-    const value = event.target.value;
-    const regex = /(\w+):\s*([^,]+)/g; 
-    let match;
-    if((match = regex.exec(value)) !== null){
-      setAdditionalData(value);
-      console.log(additionalData);
-    }
-  }
-  */
 
   const handleTextAsArticle = (value) => {
     setShowDataAsArticle(value);
@@ -360,20 +231,6 @@ function SetupPage() {
             return "";
         }
       }
-      /*else if(isActive === 'clientConfig'){
-        switch (key) {
-          case "onlyRSS":
-              return prevState === "onlyRSS" ? "clientConfig" : "onlyRSS";
-          case "onlySemantics":
-              return prevState === "onlySemantics" ? "clientConfig" : "onlySemantics";
-          case "rssAndSemantics":
-              return prevState === "rssAndSemantics" ? "clientConfig" : "rssAndSemantics";
-          default:
-              return "";
-            }
-      }*/
-
-
     });
   };
 
@@ -389,8 +246,7 @@ function SetupPage() {
   }, [combinedData]);
 
   useEffect(() => {
-    // Assuming additionalData is a JSON string or similar,
-    // and you want to combine it with mandatoryData into a single JSON object
+
     if (activeNow) {
       const combined = {
         source: activeNow,
@@ -418,7 +274,7 @@ function SetupPage() {
         ...useJavaScript,
       };
       setCombinedData(combined);
-      // Convert to JSON string for consistency
+     
     }
     else if (useJavaScript) {
       console.log('ADDITIONAL');
@@ -429,46 +285,34 @@ function SetupPage() {
         ...activeNow
       };
       setCombinedData(combined);
-      // Convert to JSON string for consistency
+     
     }
-    //const combined = JSON.stringify(mandatoryData) + ' ' + JSON.stringify(additionalData) + ' ' + activeNow;
-    //setCombinedData(combined); // Convert to JSON string for consistency
+   
     console.log(combinedData);
-  }, [additionalData, mandatoryData, activeNow, useJavaScript]); // This useEffect depends on additionalData and mandatoryData
+  }, [additionalData, mandatoryData, activeNow, useJavaScript]); 
 
-  // Your component logic and return statement...
-
-  /*
-   useEffect(() => {
-     sendHelpDataToServer();
-   }, [helpSearch]);
- */
-
+  
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/api/frame/${name}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        if (response.ok) {
-          const data = await response.text();
-          setAddress(data);
-          console.log(data);
-          
-
-        } else {
-          console.error('Nepodarilo sa získať dáta');
+        try {
+            const response = await axios.get(`http://localhost:5000/api/frame/${name}`, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (response.status === 200) {
+                const data = response.data;
+                setAddress(data);
+                console.log(data);
+            } else {
+                console.error('Nepodarilo sa získať dáta');
+            }
+        } catch (error) {
+            console.error('Chyba:', error);
         }
-      } catch (error) {
-        console.error('Chyba:', error);
-      }
-
     };
     fetchData();
-  }, []);
+}, []);
 
   const handleFrequency = (freq) =>{
     console.log(freq);
@@ -480,133 +324,104 @@ function SetupPage() {
     setDelay(value);
   } 
 
-  /*
-  const handleFrequencyChangeMinutes = (event) => {
-    const inputValue = event.target.value;
-    // Kontrola, či je zadaná hodnota kladná
-    console.log(frequencyHour);
-    if (frequencyHour === 0) {
-      if (inputValue < 5) {
-        setFrequency(5);
-      }
-      if (inputValue >= 5 && inputValue <= 59) {
-        setFrequency(inputValue);
-      }
-    }
-    if (frequencyHour > 0 && frequencyHour < 24) {
-      if (inputValue >= 0 && inputValue <= 59) {
-        setFrequency(inputValue);
-      }
-    }
-    if (frequencyHour === 24) {
-      setFrequency(0);
-    }
-  };
-  */
- /*
-  const handleFrequencyChangeHour = (event) => {
-    const inputValue = event.target.value;
-    // Kontrola, či je zadaná hodnota kladná
-    if (inputValue >= 0 && inputValue <= 24) {
-      if (inputValue === 24) {
-        setFrequency(0);
-      }
-      if (inputValue === 0 && frequency < 5) {
-        setFrequency(5);
-      }
-      setFrequencyHour(inputValue);
-    }
-  };
-  */
-  const handleStartOnce = async () => {
-
-    if(checkbeforesend() && ableSend){
-      
-      setMessages('');
-      try {
-        alert('Scraper začal extrahovať dáta')
-        const response = await fetch(`http://localhost:5000/api/setActive/${name}/setup`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ start: true, frequency: 0, name: name, maindata: mandatoryData, additionaldata: additionalData, activeNow: activeNow, usejs: useJavaScript, delay: delay })
-        });
-        if (response.ok) {
-          const jData = await response.json();
-          if(jData){
-            setResponceData('Scraper úspešne extrahoval dáta');
-          }
-          else{
-            setResponceData('Scraper skončil s chybou');
-          }
-          
-        } else {
-          console.error('Nepodarilo sa spustiť proces');
-        }
-      } catch (error) {
-        console.error('Chyba:', error);
-      }
-    }
-    else {
-      setMessages('Nie sú dobre vyplnené údaje, prosím skontrolujte zadané selektory');
-    }
-
-  };
-
-  const handleStart = async () => {
+  
+const handleStartOnce = async () => {
     if (checkbeforesend() && ableSend) {
-      setMessages('');
-      if(frequency !== ''){
-        alert('Scraper začal extrahovať dáta')
+        setMessages('');
         try {
-          const response = await fetch(`http://localhost:5000/api/setActive/${name}/setup`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ start: true, frequency: frequency, name: name, maindata: mandatoryData, additionaldata: additionalData, activeNow: activeNow, usejs: useJavaScript, delay: delay })
-          });
-          if (response.ok) {
-            const jData = await response.json();
-            setResponceData(jData);
-          } else {
-            console.error('Nepodarilo sa spustiť proces');
-          }
+            alert('Scraper začal extrahovať dáta');
+            const response = await axios.post(`http://localhost:5000/api/setActive/${name}/setup`, {
+                start: true,
+                frequency: 0,
+                name: name,
+                maindata: mandatoryData,
+                additionaldata: additionalData,
+                activeNow: activeNow,
+                usejs: useJavaScript,
+                delay: delay
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (response.status === 200) {
+                const jData = response.data;
+                if (jData) {
+                    setResponceData('Scraper úspešne extrahoval dáta');
+                } else {
+                    setResponceData('Scraper skončil s chybou');
+                }
+            } else {
+                console.error('Nepodarilo sa spustiť proces');
+            }
         } catch (error) {
-          console.error('Chyba:', error);
+            console.error('Chyba:', error);
         }
-      }
-      else{
-        setMessages('Nie je dobre nastavená frekvencia');
-      }
+    } else {
+        setMessages('Nie sú dobre vyplnené údaje, prosím skontrolujte zadané selektory');
     }
-    else {
-      setMessages('Nie sú dobre vyplnené údaje, prosím skontrolujte zadané selektory');
+};
+
+
+const handleStart = async () => {
+    if (checkbeforesend() && ableSend) {
+        setMessages('');
+        if (frequency !== '') {
+            alert('Scraper začal extrahovať dáta');
+            try {
+                const response = await axios.post(`http://localhost:5000/api/setActive/${name}/setup`, {
+                    start: true,
+                    frequency: frequency,
+                    name: name,
+                    maindata: mandatoryData,
+                    additionaldata: additionalData,
+                    activeNow: activeNow,
+                    usejs: useJavaScript,
+                    delay: delay
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.status === 200) {
+                    const jData = response.data;
+                    setResponceData(jData);
+                } else {
+                    console.error('Nepodarilo sa spustiť proces');
+                }
+            } catch (error) {
+                console.error('Chyba:', error);
+            }
+        } else {
+            setMessages('Nie je dobre nastavená frekvencia');
+        }
+    } else {
+        setMessages('Nie sú dobre vyplnené údaje, prosím skontrolujte zadané selektory');
     }
+};
 
-  };
 
-  const handleStop = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/setActive/${name}/setup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ start: false, name: name })
+const handleStop = async () => {
+  try {
+      const response = await axios.post(`http://localhost:5000/api/setActive/${name}/setup`, {
+          start: false,
+          name: name
+      }, {
+          headers: {
+              'Content-Type': 'application/json'
+          }
       });
-      if (response.ok) {
-        const jData = await response.json();
-        setResponceData(jData);
-        /*setIsActive('Scraper is not running');*/
+
+      if (response.status === 200) {
+          const jData = response.data;
+          setResponceData(jData);
       } else {
-        console.error('Nepodarilo sa zastaviť proces');
+          console.error('Nepodarilo sa zastaviť proces');
       }
-    } catch (error) {
+  } catch (error) {
       console.error('Chyba:', error);
-    }
-  };
+  }
+};
 
   function handleKeyDown(e) {
     if (e.key === "Tab") {
@@ -616,37 +431,13 @@ function SetupPage() {
       const end = current.selectionEnd;
       const value = current.value;
 
-      // Insert tabulation in the textarea at the current cursor position
       const newValue = value.substring(0, start) + "\t" + value.substring(end);
       current.value = newValue;
 
-      // Move the cursor after the inserted tabulation
       current.selectionStart = current.selectionEnd = start + 1;
     }
   }
-  /*
-    const sendHelpDataToServer = async() => {
-      try{
-        const response = await fetch(`http://localhost:5000/api/setActive/SetUp/${name}/helper`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json' 
-        },
-        body: JSON.stringify({helpData: helpSearch, name: name})
-      });
-      if (response.ok) {
-        const jsonData = await response.json();
-        setHelpFindData(jsonData);
-        
-      } else {
-        console.error('Nepodarilo sa poslať dáta');
-      }
-      }
-      catch (error) {
-        console.error('Chyba:', error);
-      }
-  };
-  */
+  
   function wrongSelector(jsondata) {
     let canBeSend = true;
 
@@ -719,52 +510,36 @@ function SetupPage() {
     }
   }
 
-  const sendSetupDataToServer = async () => {
+ const sendSetupDataToServer = async () => {
     setLoading(true);
     try {
-      console.log(mandatoryData);
-      const response = await fetch(`http://localhost:5000/api/setActive/SetUp/${name}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ maindata: mandatoryData, additionaldata: additionalData, name: name, activeNow: activeNow, usejs: useJavaScript })
-      });
-      if (response.ok) {
-        const jsonData = await response.json();
-        console.log(jsonData);
-        console.log(additionalData)
-        wrongSelector(jsonData);
-
-
-        /*
-        const isOnlySpecificKeysDefined = Object.keys(jsonData).every(key => {
-          return key === 'pubdate' || key === 'guid' || key === 'sourceID';
+        console.log(mandatoryData);
+        const response = await axios.post(`http://localhost:5000/api/setActive/SetUp/${name}`, {
+            maindata: mandatoryData,
+            additionaldata: additionalData,
+            name: name,
+            activeNow: activeNow,
+            usejs: useJavaScript
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
         });
-      
-        if (isOnlySpecificKeysDefined) {
-          // Perform the desired action when only 'pubdate', 'guid', and 'sourceID' are defined
-          console.log('Only pubdate, guid, and sourceID have values and no other keys are defined.');
-          
-          setActiveNow('noData');
-          // Perform your action here ...
+
+        if (response.status === 200) {
+            const jsonData = response.data;
+            console.log(jsonData);
+            console.log(additionalData);
+            wrongSelector(jsonData);
+            setLoading(false);
+        } else {
+            console.error('Nepodarilo sa zastaviť proces');
         }
-        */
-
-
-        //console.log("Data" + data);
-        setLoading(false);
-      }
-
-      else {
-        console.error('Nepodarilo sa zastaviť proces');
-      }
-
+    } catch (error) {
+        console.error('Chyba:', error);
     }
-    catch (error) {
-      console.error('Chyba:', error);
-    }
-  };
+};
+
 
 
   useEffect(() => {
@@ -772,17 +547,17 @@ function SetupPage() {
     scrollToTop();
     const fetchData = async () => {
       try {
-        console.log(checked);
-        console.log(activeNow);
-        const response = await fetch(`http://localhost:5000/api/setActive/${name}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ name: name })
-        });
-        if (response.ok) {
-          const jsonData = await response.json();
+        const response = await axios.post(
+          `http://localhost:5000/api/setActive/${name}`, 
+          { name: name },
+          { 
+              headers: {
+                  'Content-Type': 'application/json'
+              }
+          }
+        );
+        if (response.status === 200) {
+          const jsonData = await response.data;
           const object = jsonData.source;
           const rss = jsonData.rssdata;
           const seman = jsonData.semantics;
@@ -834,42 +609,14 @@ function SetupPage() {
                 key !== 'pubdate'
             );
 
-            // Create additionalData string
+            
             const additionalDataStr = additionalKeys
               .map((key) => `${key}: ${configData[key].source};`)
               .join('\n');
 
-            // Set additionalData state
-            //setAdditionalData(additionalDataStr);
+            
             handleTextArea({ target: { value: additionalDataStr } });
             window.scrollTo(0, 0);
-
-            /*
-            const additionalDataObj = {};
-        
-            // Iterate over the keys of configData
-            for (const key in configData) {
-                // Check if the key is not one of the specified keys
-                if (!['title', 'link', 'description', 'pubdate', 'guid', 'sourceID'].includes(key)) {
-                    // Include the key and its value in additionalDataObj
-                    console.log(configData[key].source);
-                    additionalDataObj[key] = { source: configData[key].source };
-                }
-            }
-        
-            // Set the additionalData state with the additionalDataObj
-            setAdditionalData(JSON.stringify(additionalDataObj, null, 2));
-            
-            // Set mandatoryData with specified keys from configData
-            setMandatoryData({
-                title: { source: configData.title.source },
-                link: { source: configData.link.source },
-                description: { source: configData.description.source }
-            });
-        
-            // Set activeNow to 'clientConfig'
-            setActiveNow(active);
-            */
           }
 
         } else {
@@ -883,6 +630,7 @@ function SetupPage() {
     };
     fetchData();
   }, []);
+
 
   return (
     <div className="App">
@@ -904,21 +652,6 @@ function SetupPage() {
         <h2 className="scraperDesH2" style={{width: '10%'}}>Prezrite si rôzne náhľady</h2>
       </div>
       
-      {/*
-      <div className="templateButtons">
-              <h2 style={{marginLeft: '20px'}}>Zobraiť ako: </h2>
-              <button className={showDataAsArticle ? ('nonactive-button') : ('active-button')} onClick={() => handleTextAsArticle(false)}>Zobraziť dáta</button>
-              <button className={showDataAsArticle ? ('active-button') : ('nonactive-button')} onClick={() => handleTextAsArticle(true)}>Zobraziť ako článok</button>
-              <div style={{display: 'flex', alignItems: 'center', marginLeft: '10px'}}>
-              <h2>Použiť JavaScript</h2>
-              <FormControlLabel
-                    value="Use JavaScript"
-                    control={<Switch color="primary" onChange={handleJavaScript} />}
-                    labelPlacement="start"
-                    
-                  />
-            </div>
-      </div>*/}
       
       <div className="clearfix">
         <div style={{width: '29%', marginRight: '20px', background: 'rgb(0 64 157)', borderRadius: '15px', boxShadow: '5px 5px 5px grey'}}>
@@ -970,14 +703,14 @@ function SetupPage() {
             <div style={{display: 'flex', alignItems: 'baseline'}}>
               {err.link ? (<TextField error label="Povinné" value={userInput.link.source} id="link" sx={{ m: 1, width: '100%' }} onChange={(event) => {
                 handleUserInputChange(event, 'link');
-                //handleMandatoryArea(event, 'link');
+                
               }}
                 InputProps={{
                   startAdornment: <InputAdornment position="start">link: </InputAdornment>,
                 }}
               />) : (<TextField label="Povinné" value={userInput.link.source} id="link" sx={{ m: 1, width: '100%' }} onChange={(event) => {
                 handleUserInputChange(event, 'link');
-                //handleMandatoryArea(event, 'link');
+                
               }}
                 InputProps={{
                   startAdornment: <InputAdornment position="start">link: </InputAdornment>,
@@ -990,14 +723,14 @@ function SetupPage() {
             <div style={{display: 'flex', alignItems: 'baseline'}}>
               {err.des ? (<TextField error label="Povinné" value={userInput.description.source} id="description" sx={{ m: 1, width: '100%' }} onChange={(event) => {
                 handleUserInputChange(event, 'description');
-                //handleMandatoryArea(event, 'description');
+                
               }}
                 InputProps={{
                   startAdornment: <InputAdornment position="start">description: </InputAdornment>,
                 }}
               />) : (<TextField label="Povinné" value={userInput.description.source} id="description" sx={{ m: 1, width: '100%' }} onChange={(event) => {
                 handleUserInputChange(event, 'description');
-                //handleMandatoryArea(event, 'description');
+                
               }}
                 InputProps={{
                   startAdornment: <InputAdornment position="start">description: </InputAdornment>,
@@ -1200,7 +933,7 @@ function SetupPage() {
         <div style={{display: 'flex', marginTop: '20px', alignItems: 'center', justifyContent:'end'}}>
           <h3>Nastaviť oneskorenie</h3>
           <input type="number" value={delay} style={{height: '25px', marginLeft:'20px'}} onChange={handleDelay}></input>
-          <Tooltip title="Nataviť oneskorenie znamená " placement="top">
+          <Tooltip title="Nastavenie oneskorenia medzi vykonávanými extrakciami z RSS záznamu" placement="top">
             <p style={{fontSize: '20px', marginLeft: '10px', cursor:'pointer'}}>🛈</p>
           </Tooltip>
           
@@ -1230,81 +963,3 @@ function SetupPage() {
 
 export default SetupPage;
 
-
-/*
-<SSEComponent name={name}/>
-  useEffect(() => {
-    const mergedData = {
-      ...setupdata,
-      ...JSON.parse(additionalData || '{}') // Zabezpečuje, že sa nepokúšame parsovať prázdny reťazec
-    };
-    setSetupData(JSON.stringify(mergedData));
-  }, [setupdata, additionalData]);
-*/
-/*
-  const handleMandatoryArea = (event, name) => {
-    const value = event.target.value;
-    const regex = /(\w+):\s*([^,]+)/g;
-    const newData = `${name}: ${value}`;
-    let match;
-    if ((match = regex.exec(newData)) !== null) {
-      setSetupData(newData);
-    }
-  }
-*/
-
-//Handle na získanie dát z <TextField> a následné ich spracovanie a zapísanie do setupData
-/*
-const handleMandatoryArea = (event, name) => {
-  const value = event.target.value;
-  setMandatoryData(prevState => ({
-    ...prevState,
-    [name]: value
-  }));
- 
-  const setupDataObject = { ...mandatoryData, [name]: value };
-  const formattedString = Object.keys(setupDataObject)
-    .map(key => `${key}: ${setupDataObject[key] || ''},`)
-    .join('\n');
- 
-  setSetupData(formattedString);
-};
-*/
-
-/*
-{data ? (
-          <div className="half">
-            {Object.entries(data).map(([key, value], index) => (
-              <span key={index}>
-                 {
-                  key === 'link' ? <a href={value} target="_blank"><h1>{data['title']}</h1></a> : 
-                  
-                  key === 'status' ? <h2>{value}</h2> :
-                  key === 'type' ? <p>{value}</p> :
-                  key === 'site_name' ? <p>{value}</p> :
-                  key === 'pubdate' ? <p>{value}</p> :
-                  key === 'guid' ? <p>{value}</p> :
-                  
-                  key === 'description' ? <p>{value}</p> : 
-                  key === 'image' ? <img src={value} /> : null
-              }
-              </span>
-            ))}
-          </div>
-        ) : (
-          <div className="half">
-            <p>Loading data ...</p>
-          </div>
-        )}
-*/
-/**
- <div className="helpSearchData">
-      <TextField label="Vyhľadaj" sx={{ m: 1, width: '350px' }}
-        onChange={handleHelpSearchData}
-          InputProps={{
-            startAdornment: <InputAdornment position="start">search: </InputAdornment>,
-          }}
-        />
-      <p className="helpSearchBox">{helpFindData}</p>
-      </div>
-*/

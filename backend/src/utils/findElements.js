@@ -3,13 +3,12 @@ const axios = require('axios');
 
 async function removeNoscriptTags(html) {
     try{
-    // Regular expression for finding <noscript> tags and their contents
-    //console.log(html);
+    
     const regex = /<noscript\b[^>]*>|<\/noscript>/gi
     
     // Replace all occurrences of <noscript> tags with an empty string
     const cleanedHtml = html.replace(regex, '');
-    //console.log('+ ', cleanedHtml, ' + ')
+    
     return cleanedHtml;
     }
     catch (error){
@@ -70,28 +69,15 @@ async function findElements(url, selector, loadHTML) {
 
         else if(selector.includes('children(')){
             const source = selector.split('children(');
-            //console.log(s);
             const regex = /children\(([^)]+)\)/;
             const matches = selector.match(regex);
-            //console.log(matches[1]);
             const parentSelectors = source[0];
             const childSelectors = matches[1]
-            //console.log(parentSelectors);
-            //console.log(childSelectors);
             elements = $(parentSelectors)
                     .children(childSelectors)
                     .map((index, element) => $(element).text().trim())
                     .get()
                     .filter(Boolean);
-   
-            /*
-            if (matches && matches.length === 3) {
-                const parentSelectors = matches[1];
-                const childSelectors = matches[2].trim();
-                console.log(parentSelectors);
-                console.log(childSelectors);
-                elements = $(parentSelectors).children(childSelectors);    
-            }*/
         }
         else{
             elements = $(selector).text().trim();
@@ -103,7 +89,7 @@ async function findElements(url, selector, loadHTML) {
             return "403"; // Vrátiť chybovú odpoveď
         } else {
             console.log('Error in elements');
-            //throw error; // Vrátiť chybu a nechať ju spracovať ďalšie bloky catch
+            
             return false;
         }
     }

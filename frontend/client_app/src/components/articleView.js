@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { Link } from 'react-router-dom';
 import DownloadButton from "../components/download";
-import download from '../images/download.png';
+
 
 function ArticleView({articles}){
     const [activeItems, setActiveItems] = useState([]);
@@ -75,20 +75,12 @@ function ArticleView({articles}){
                                     <DownloadButton data={[articles]} format="xml" filename={'article_XML_' + articles.guid}/>
                                   </div>
                                 </div>
-                              
-                              
-                            
                           </span> 
-
                         </div>
-                
                       </div>
-                      
                     </article>           
                   </div>
                     ))}
-              
-               
                 </article>
         
     );

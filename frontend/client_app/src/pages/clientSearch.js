@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import "../filter.css";
-import { useLocation } from 'react-router-dom';
+import "../css/filter.css";
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 //import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -10,15 +9,10 @@ import Button from '@mui/material/Button';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { renderTimeViewClock } from '@mui/x-date-pickers/timeViewRenderers';
 import TextField from '@mui/material/TextField';
-import { format } from 'date-fns';
-import dayjs from 'dayjs';
-import { json, useAsyncError } from "react-router";
 import { Link } from 'react-router-dom';
 import DownloadButton from "../components/download";
 import { orderBy } from "lodash";
-import download from '../images/download.png';
-
-
+import axios from "axios";
 
 function ClientSearch() {
 
@@ -82,7 +76,6 @@ function ClientSearch() {
   };
 
   const handleDateFrom = (event) => {
-    //console.log(new Date(event));
     if (event != null) {
       setDateFrom(new Date(event));
     }
@@ -127,24 +120,6 @@ function ClientSearch() {
     }, 300000);
   };
 
-
-
-  /*
-      const scrollToObject = () => {
-        const storedScrollPosition = localStorage.getItem('scrollPosition');  
-          console.log(parseInt(storedScrollPosition));
-          window.scrollTo({
-            top: storedScrollPosition,
-            behavior: "smooth"
-          })
-      }
-  */
-  /*
-  useEffect(() => {
-    // Save scroll position to local storage
-    localStorage.setItem('scrollPosition', scrollPosition);
-  }, [scrollPosition]);*/
-
   const handleScroll = () => {
     localStorage.setItem('scrollPosition', window.scrollY);
     setTimeout(() => {
@@ -172,69 +147,40 @@ function ClientSearch() {
   }, [scrollPosition]);
 
 
-  /*
-  if(localStorage.getItem('articles') !== null){
-    setArticles(JSON.parse(localStorage.getItem('articles')));
-  }*/
-
-
-  /*
-  useEffect(() => {
-    const storedScrollPosition = localStorage.getItem('scrollPosition');
-    console.log(parseInt(storedScrollPosition));
-    window.scrollTo({top: parseInt(storedScrollPosition)});
-  }, [articles]);*/
-
   const handleSearch = async () => {
     try {
-      //console.log(dateFrom, dateTo);
-      console.log('handleSearch');
-      const response = await fetch(`http://localhost:5000/search`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ datefrom: dateFrom, dateto: dateTo, timefrom: timeFrom, timeto: timeTo, sourceid: sourceid, setupGuid: setupGuid, setWord: setWord })
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setArticles(data);
-        setNewArt(null);
-        localStorage.setItem('articles', JSON.stringify(data));
-        setTimeout(() => {
-          localStorage.removeItem('articles');
-        }, 300000);
-      } else {
-        console.error('Nepodarilo sa poslať dáta');
-      }
+        //console.log(dateFrom, dateTo);
+        console.log('handleSearch');
+        const response = await axios.post('http://localhost:5000/search', {
+            datefrom: dateFrom,
+            dateto: dateTo,
+            timefrom: timeFrom,
+            timeto: timeTo,
+            sourceid: sourceid,
+            setupGuid: setupGuid,
+            setWord: setWord
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.status === 200) {
+            const data = response.data;
+            setArticles(data);
+            setNewArt(null);
+            localStorage.setItem('articles', JSON.stringify(data));
+            setTimeout(() => {
+                localStorage.removeItem('articles');
+            }, 300000);
+        } else {
+            console.error('Nepodarilo sa poslať dáta');
+        }
+    } catch (error) {
+        console.error(error);
     }
-    catch (error) {
-      console.log(error);
-    }
-  };
-/*
-  const handleSort = (direction) => {
-    if (articles) {
-      let sortedArticles;
-      
-      if(direction === 1){
-        sortedArticles = [...articles].sort((a, b) => new Date(a.pubdate) - new Date(b.pubdate));
-      }
-      else{
-        sortedArticles = [...articles].sort((a, b) => new Date(b.pubdate) - new Date(a.pubdate));
-      }
-      
-      setArticles(sortedArticles); // Update the state with sorted articles
-      //localStorage.setItem('articles', JSON.stringify(sortedArticles));
-      console.log(newArt);
-      console.log(sortedArticles.length);
-      //setTimeout(() => {
-      //  localStorage.removeItem('articles');
-      //}, 300000)
-      setSortDirection(direction); // Toggle sort direction
-    }
-  };
-*/
+};
+
   const handleSearchWord = (event) => {
     const inputValue = event.target.value;
     setSetWord(inputValue);
@@ -258,23 +204,6 @@ function ClientSearch() {
     }
   };
   
-  /*
-  useEffect(() => {
-      const handleScroll = () => {
-        const scrollY = window.scrollY;
-        console.log('Scroll position:', scrollY);
-        localStorage.setItem('scrollPosition', window.scrollY);
-        // You can store the scrollY position in state or perform other actions here
-      };
-  
-      window.addEventListener('scroll', handleScroll);
-  
-      return () => {
-        window.removeEventListener('scroll', handleScroll);
-      };
-    }, []);
-    */
-
 
   return (
     <div>
@@ -450,9 +379,6 @@ function ClientSearch() {
                             </div>
                           </div>
 
-
-
-
                         </span>
 
                       </div>
@@ -463,8 +389,8 @@ function ClientSearch() {
                 </div>
               ))}
               <div>
-                <button onClick={handlePrevClick} disabled={startIndex === 0}>Previous</button>
-                <button onClick={handleNextClick} disabled={startIndex + articlesPerPage >= articles.length}>Next</button>
+                <button style={{width: '100px', height:'30px', margin: '5px', background: 'white', color: 'black', fontSize: '16px'}} onClick={handlePrevClick} disabled={startIndex === 0}>Späť</button>
+                <button style={{width: '100px', height:'30px', margin: '5px', background: 'white', color: 'black', fontSize: '16px'}} onClick={handleNextClick} disabled={startIndex + articlesPerPage >= articles.length}>Ďalej</button>
               </div>
             </div>
           ) : (null)
@@ -477,4 +403,3 @@ function ClientSearch() {
 
 export default ClientSearch;
 
-/**<a href={article.link} target="_blank" className="searchArticleLink"> */

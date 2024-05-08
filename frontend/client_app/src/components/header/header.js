@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import {Outlet} from "react-router-dom";
-import '../css/header.css'
-import logo from '../images/homeIcon.png'
+import '../../css/header.css'
+import logo from '../../images/homeIcon.png'
 import { Link } from "react-router-dom";
-import { NavLink } from "react-router-dom";
-
 import axios from "axios";
+
+
 function Header(){
 
     const [sources, setSources] = useState([]);

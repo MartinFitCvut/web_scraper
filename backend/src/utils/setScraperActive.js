@@ -218,19 +218,7 @@ async function setScraperActive(address, usejs, isActive, delay) {
                         catch(error){
                             console.log(error)
                         }
-                        //console.log('Vložil sa nový záznam');
-                        //console.log('Difference newData:');
-                        /*differenceNewData.forEach((difference, index) => {
-                            console.log(`Difference ${index + 1}:`, difference);
-                        });
-
-                        // Vypíšte differences z record
-                        console.log('Difference record:');
-                        differenceRecord.forEach((difference, index) => {
-                            console.log(`Difference ${index + 1}:`, difference);
-                        });
-                        console.log("New version added " + record.guid);
-                        */
+                        
                         
                     }
                     else{

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
-import Button from "@mui/material/Button";
 import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
-import SettingsIcon from '@mui/icons-material/Settings';
 import TuneIcon from '@mui/icons-material/Tune';
 import Tooltip from '@mui/material/Tooltip';
+import axios from "axios";
 
 function SourcesBox() {
   const [data, setData] = useState([]);
@@ -14,22 +13,20 @@ function SourcesBox() {
     fetchData("http://loalhost:5000");
   }, []);
 
-    const fetchData = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/');
-      const jsonData = await response.json();
+const fetchData = async () => {
+  try {
+      const response = await axios.get('http://localhost:5000/');
+      const jsonData = response.data;
       setData(jsonData);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
+  } catch (error) {
+      console.error('Chyba pri získavaní údajov:', error);
+  }
+};
 
   const handleDelete = async (name) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/delete/Source/${name}`, {
-        method: 'DELETE'
-      });
-      if (response.ok) {
+      const response = await axios.delete(`http://localhost:5000/api/delete/Source/${name}`);
+      if (response.status === 200) {
         // Aktualizovať údaje po vymazaní
         await fetchData();
       } else {

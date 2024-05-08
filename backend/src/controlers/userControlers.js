@@ -21,14 +21,6 @@ const { getCache, setCache } = require('../utils/cache');
 
 dotenv.config();
 
-//const EventEmitter = require('events');
-//const eventEmitter = new EventEmitter();
-//console.log('eventEmitter: ',eventEmitter);
-//setCache('events', eventEmitter, 0);
-//setCache('runningScrapers', runningScrapers, 0);
-//setCache('scrapersInFunction', scrapersInFunction, 0);
-
-
 exports.getSourceData = async(req, res) => {
     try {
         const collection = await connectSource(process.env.SOURCEDATA);
@@ -380,9 +372,8 @@ exports.setScraperRunning = async(req, res) => {
                         
                         
                     }
-                    else /*if(receivedData.frequency || frequencyHour)*/{
-                        //const frekvencia = parseInt(receivedData.frequency);
-                        //console.log('Setting frequency to', frekvencia);
+                    else {
+                        
                         console.log('Starting process...');
                         //await updateFrequencyData(sourceName, frekvencia, parseInt(frequencyHour)); //zmena frekvencie 
                         await updateFrequencyData(sourceName, frequency); //zmena frekvencie 
@@ -391,40 +382,7 @@ exports.setScraperRunning = async(req, res) => {
                         res.json('started');
 
                     }
-                    /*
-                    else{
-                        res.json('No frequency setup');
-                        console.log('No frequency setup');
-                    }*/
-                    //else{
-                    /*else if(frekvencia === 0){
-                       
-                        //await updateFrequencyData(sourceName, frekvencia); //zmena frekvencie 
-                        await setScraperActive(address, usejs);
-                        await updateSourceData(sourceName, 'stop');
-                        //await updateFrequencyData(sourceName, 0);
-                        emitScraperEvent(sourceName, 'scraperStopped');
-                        
-                        res.json('started');
-                        
-                    }
-                    else{
-                        console.log('Setting frequency to', frekvencia);
-                        console.log('Starting process...');
-                      
-                        await updateFrequencyData(sourceName, frekvencia); //zmena frekvencie 
-                        await startAndStopScraper(sourceName, frekvencia, address, true, usejs); // spusť scraper 
-                       
-                        res.json('started');
-                        
-                    }*/
-                    
-                    //}
-                //}
-                /*else{
-                    res.json('No frequency setup');
-                    console.log('No frequency setup');
-                }*/
+                   
                 
             } else {
                 console.log('Stopping process...');
@@ -503,33 +461,3 @@ function emitScraperEvent(scraperId, event) {
 }
 
 
-
-
-
-
-
-
-
-//module.exports = { getSourceData }
-
-/*
-import dotenv from 'dotenv';
-
-import connectSource from '../utils/connectMongo.js';
-
-
-dotenv.config();
-
-async function getSourceData() {
-    try {
-        const collection = await connectSource(process.env.SOURCEDATA);
-        const data = await collection.find({}).toArray();
-        return data;
-    } catch (error) {
-        console.error('Chyba pri získavaní údajov:', error);
-        throw error;
-    }
-}
-
-export default getSourceData;
-*/

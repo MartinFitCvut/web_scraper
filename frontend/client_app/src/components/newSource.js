@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from "@mui/material/Button";
 import Alert from '@mui/material/Alert';
 import { Tooltip } from "@mui/material";
 import { Link } from "react-router-dom";
-
+import axios from "axios";
 import '../css/newSource.css'
 
 function AddNewSource() {
@@ -27,44 +27,36 @@ function AddNewSource() {
 
     const handleNewData = async () => {
         const checkName = name.trim();
-        if(checkName !== ''){
+        if (checkName !== '') {
             try {
-                const response = await fetch('http://localhost:5000/api/newSource', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ name: name, url: url }),
-                })
-                if (response.ok) {
-                    const jData = await response.json();
+                const response = await axios.post('http://localhost:5000/api/newSource', {
+                    name: name,
+                    url: url
+                });
+    
+                if (response.status === 200) {
+                    const jData = response.data;
                     console.log(jData);
                     if (jData === true) {
-                        setIsTrue(true)
+                        setIsTrue(true);
                         window.location.reload();
-                    }
-                    else{
-                        setIsTrue(false)
+                    } else {
+                        setIsTrue(false);
                     }
                     setMessage(jData);
-                    
-                }
-                else {
+                } else {
                     console.error('Nepodarilo sa spustiť proces');
                 }
-            }
-            catch (error) {
+            } catch (error) {
                 console.error('Chyba:', error);
             }
-        }
-        else{
+        } else {
             setMessage('Nemáte vyplnené všetky údaje');
             setTimeout(() => {
                 setMessage('');
             }, 4000);
         }
-        
-    }
+    };
 
 
     return (
@@ -112,5 +104,3 @@ function AddNewSource() {
 }
 
 export default AddNewSource;
-
-// <Button variant="outlined" onClick={() => handleNewData(document.getElementById("nameField").value)}>Set Up</Button>

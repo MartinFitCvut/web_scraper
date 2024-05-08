@@ -70,7 +70,7 @@ async function createMainTemplate(activeNow, firstItem, pageMetadata, nameValue,
                         }
                     }            
                 }
-                //newData = await createTemplate(firstItem, pageMetadata, address); //Vytvorí sa šablóna podľa ktorej budeme dalej ukladať dáta
+                
             }
         }
 

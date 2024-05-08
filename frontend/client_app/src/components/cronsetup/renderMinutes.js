@@ -1,5 +1,6 @@
 import React from "react";
 
+//Formát zobrazovania času
 function RenderMinutes({values}){
 
     const formatDate = (date) => {

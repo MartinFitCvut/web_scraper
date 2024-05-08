@@ -5,12 +5,11 @@ const axios = require('axios');
 async function removeNoscriptTags(html) {
     try{
     // Regular expression for finding <noscript> tags and their contents
-    //console.log(html);
     const regex = /<noscript\b[^>]*>|<\/noscript>/gi
     
     // Replace all occurrences of <noscript> tags with an empty string
     const cleanedHtml = html.replace(regex, '');
-    //console.log('+ ', cleanedHtml, ' + ')
+    
     return cleanedHtml;
     }
     catch (error){

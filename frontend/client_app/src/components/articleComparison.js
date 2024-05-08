@@ -8,8 +8,6 @@ const ArticleComparison = ({ currentArticle, articleVersions }) => {
   const getAllUniqueKeys = (obj1, obj2) => {
     const keys1 = Object.keys(obj1);
     const keys2 = Object.keys(obj2);
-    
-    // Spojíme obidva zoznamy kľúčov a odstránime duplikáty
     const uniqueKeys = [...new Set([...keys1, ...keys2])];
     
     return uniqueKeys;

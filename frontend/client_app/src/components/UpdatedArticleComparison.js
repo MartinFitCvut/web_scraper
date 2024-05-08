@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { diffWords } from 'diff';
 import FullArticleView from './fullArticleView';
-import ArticleView from './articleView';
+
 
 const OneArticleComparison = ({ currentArticle, articleVersions }) => {
   const [currentArticleState] = useState(currentArticle);
@@ -11,7 +11,6 @@ const OneArticleComparison = ({ currentArticle, articleVersions }) => {
     const keys1 = Object.keys(obj1);
     const keys2 = Object.keys(obj2);
 
-    // Spojíme obidva zoznamy kľúčov a odstránime duplikáty
     const uniqueKeys = [...new Set([...keys1, ...keys2])];
 
     return uniqueKeys;
@@ -20,10 +19,10 @@ const OneArticleComparison = ({ currentArticle, articleVersions }) => {
   const renderDiff = (text1, text2) => {
     try {
       if (text1 === undefined && text2 === undefined) {
-        return null; // Ak sú oba texty undefined, nezobrazujeme žiadne rozdiely
+        return null; 
       }
 
-      const differences = diffWords(text1 || '', text2 || ''); // Vynecháme undefined hodnoty a použijeme prázdne reťazce
+      const differences = diffWords(text1 || '', text2 || ''); 
 
       return differences.map((part, index) => {
         const style = part.added
@@ -77,7 +76,7 @@ const OneArticleComparison = ({ currentArticle, articleVersions }) => {
                     const currentValue = currentArticleState[key];
                     const versionValue = articles[key];
 
-                    // Porovnáme hodnoty
+                   
                     const diff = renderDiff(currentValue, versionValue);
 
                     return (

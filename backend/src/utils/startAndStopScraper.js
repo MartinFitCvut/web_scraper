@@ -101,16 +101,13 @@ async function startAndStopScraper(sourceName, frequency, address, startOrStop, 
         }
         //Zastavenie scrapera 
         // Zastavíme cron úlohu pre daný zdroj
-        //runningScrapers = getCache('runningScrapers')
+        
         if (global.runningScrapers[sourceName]) {
             global.runningScrapers[sourceName].stop(); 
             //delete global.runningScrapers[sourceName]; 
             console.log('end runningScrapers: ', global.runningScrapers);
             console.log('end scrapersInFunction: ' ,global.scrapersInFunction);
-            //setCache('runningScrapers', runningScrapers, 0);
-            //console.log(sourceName, " stopped");
-            
-            //eventEmitter.emit(`${sourceName}-${'scraperStopped'}`, { sourceName, status: 'scraperStopped' });
+          
             emitScraperEvent(sourceName, 'scraperStopped');
             
             await updateSourceData(sourceName, 'stop');
@@ -119,8 +116,7 @@ async function startAndStopScraper(sourceName, frequency, address, startOrStop, 
             console.log("No running scraper found for", sourceName);
         }
     }
-    //setCache('runningScrapers', runningScrapers, 0);
-    //setCache('runningScrapers', runningScrapers, 0);
+    
 }
 
 module.exports = {

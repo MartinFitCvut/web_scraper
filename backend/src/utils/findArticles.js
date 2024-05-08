@@ -33,16 +33,22 @@ async function findArticles(dateFrom, dateTo, timeFrom, timeTo, setupSourceID, s
 
         // Check if dateTo is specified
         if (dateTo !== null) {
-            const realDateTime = new Date(new Date(dateTo).getTime() + 60 * 60 * 1000).toISOString();
+            console.log(dateTo)
+            const realDateTime = new Date(new Date(dateTo).getTime() + 2 * 60 * 60 * 1000).toISOString();
+            console.log(realDateTime);
             //console.log(realDateTime);
             if(timeTo !== null){
                 const time = new Date(timeTo).toLocaleTimeString('en-US', { hour12: false });
                 const date = realDateTime.split('T')[0];
                 dateTimeTo = date + 'T' + time + '.000Z';
+                console.log(dateTimeTo)
                 query.pubdate = dateTimeFrom !== null ? { ...query.pubdate, $lte: new Date(dateTimeTo)} : { $lte: new Date(dateTimeTo) };
             }
             else{
-                dateTimeTo = realDateTime;
+                const time = '23:59:00';
+                const date = realDateTime.split('T')[0];
+                const dateTimeTo = date + 'T' + time + '.000Z';
+                console.log(dateTimeTo);
                 query.pubdate = dateTimeFrom !== null ? { ...query.pubdate, $lte: new Date(dateTimeTo) } : { $lte: new Date(dateTimeTo) };
             } 
         }
